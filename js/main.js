@@ -10,11 +10,9 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 80;
 
-
 var map = document.querySelector('.map');
 var templatePin = document.querySelector('#pin').content;
 var pinsLocation = document.querySelector('.map__pins');
-
 
 var getRandomArrayElement = function (arr) {
   return arr[getRandomNumber(0, arr.length - 1)];
@@ -38,22 +36,10 @@ var generateRandomSubArray = function (arr) {
   return resultArr;
 };
 
-var generateRandomCountGuests = function (countRooms) {
-  var maxCountRooms = 0;
-
-  switch (countRooms) {
-    case 1:
-      maxCountRooms = 1;
-      break;
-    case 2:
-      maxCountRooms = 2;
-      break;
-    case 3:
-      maxCountRooms = 3;
-      break;
-  }
-
-  return getRandomNumber(0, maxCountRooms);
+var generateRandomCountGuests = function (roomsCount) {
+  return roomsCount === 0
+    ? 0
+    : getRandomNumber(0, roomsCount);
 };
 
 var generateRandomPrice = function (houseType) {
@@ -144,33 +130,21 @@ var renderPin = function (ad) {
   return newPin;
 };
 
-var renderPins = function (count) {
-  var pinsArr = [];
-  var adsArr = generateSimilarAds(count);
-
-  for (var i = 0; i < count; i++) {
-    pinsArr.push(renderPin(adsArr[i]));
-  }
-
-  return pinsArr;
-};
-
-var renderPinsOfSimilarAds = function (count) {
+var renderPinsOfSimilarAds = function (adsArr) {
   var fragment = document.createDocumentFragment();
-  var pinsArr = renderPins(count);
 
-  for (var i = 0; i < count; i++) {
-    fragment.appendChild(pinsArr[i]);
+  for (var i = 0; i < adsArr.length; i++) {
+    fragment.appendChild(renderPin(adsArr[i]));
   }
 
   return fragment;
 };
 
-var run = function () {
+var init = function () {
   enableActiveModeMap();
 
-  var pinsOfSimilarAds = renderPinsOfSimilarAds(ADS_COUNT);
+  var pinsOfSimilarAds = renderPinsOfSimilarAds(generateSimilarAds(ADS_COUNT));
   pinsLocation.appendChild(pinsOfSimilarAds);
 };
 
-run();
+init();
