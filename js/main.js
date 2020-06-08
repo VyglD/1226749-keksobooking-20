@@ -1,6 +1,6 @@
 'use strict';
 
-var ADS_COUNT = 8;
+var ADVERTS_COUNT = 8;
 var MAX_HOUSE_PRICE = 1000000;
 var MAX_ROOMS = 100;
 var HOUSE_TYPE = ['bungalo', 'house', 'flat', 'palace'];
@@ -10,11 +10,18 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 80;
 
+var MinPrice = {
+  'bungalo': 0,
+  'house': 1000,
+  'flat': 5000,
+  'palace': 10000
+};
+
 var map = document.querySelector('.map');
 var templatePin = document.querySelector('#pin').content;
 var pinsLocation = document.querySelector('.map__pins');
 
-var getRandomArrayElement = function (arr) {
+var getRandomElement = function (arr) {
   return arr[getRandomNumber(0, arr.length - 1)];
 };
 
@@ -22,18 +29,18 @@ var getRandomNumber = function (min, max) {
   return Math.round(Math.random() * (max - min) + min);
 };
 
-var generateRandomSubArray = function (arr) {
-  var resultArr = [];
-  var cloneArr = arr.slice();
-  var arrLength = getRandomNumber(0, arr.length - 1);
+var shuffleArray = function (arr) {
+  return arr.slice().sort(function () {
+    return 0.5 - Math.random();
+  });
+};
 
-  for (var i = 0; i < arrLength; i++) {
-    var index = getRandomNumber(0, cloneArr.length - 1);
-    resultArr.push(cloneArr[index]);
-    cloneArr.splice(index, 1);
-  }
+var getRandomSubArray = function (arr) {
+  var half = arr.length / 2;
+  var start = getRandomNumber(0, half);
+  var end = getRandomNumber(half, arr.length);
 
-  return resultArr;
+  return shuffleArray(arr.slice(start, end));
 };
 
 var generateRandomCountGuests = function (roomsCount) {
@@ -43,46 +50,34 @@ var generateRandomCountGuests = function (roomsCount) {
 };
 
 var generateRandomPrice = function (houseType) {
-  var minHousePrice = 0;
-
-  switch (houseType) {
-    case 'house':
-      minHousePrice = 1000;
-      break;
-    case 'flat':
-      minHousePrice = 5000;
-      break;
-    case 'palace':
-      minHousePrice = 10000;
-      break;
-  }
-
-  return getRandomNumber(minHousePrice, MAX_HOUSE_PRICE);
+  return getRandomNumber(MinPrice[houseType], MAX_HOUSE_PRICE);
 };
 
 var generateLocation = function () {
-  var location = {};
-
-  location['x'] = getRandomNumber(0, 650);
-  location['y'] = getRandomNumber(130, 630);
-
-  return location;
+  return ({
+    x: getRandomNumber(0, 650),
+    y: getRandomNumber(130, 630)
+  });
 };
 
-var generateOffer = function () {
+var getLocationValue = function (location) {
+  return [location.x, location.y].join(',');
+};
+
+var generateOffer = function (location) {
   var offer = {};
 
   offer['title'] = 'Заголовок';
-  offer['address'] = '600, 350';
-  offer['type'] = getRandomArrayElement(HOUSE_TYPE);
+  offer['address'] = location;
+  offer['type'] = getRandomElement(HOUSE_TYPE);
   offer['price'] = generateRandomPrice(offer['type']);
   offer['rooms'] = getRandomNumber(0, MAX_ROOMS);
   offer['guests'] = generateRandomCountGuests(offer['rooms']);
-  offer['checkin'] = getRandomArrayElement(TIMES);
+  offer['checkin'] = getRandomElement(TIMES);
   offer['checkout'] = offer['checkin'];
-  offer['features'] = generateRandomSubArray(FEATURES);
+  offer['features'] = getRandomSubArray(FEATURES);
   offer['description'] = 'Описание';
-  offer['photos'] = generateRandomSubArray(PHOTOS);
+  offer['photos'] = getRandomSubArray(PHOTOS);
 
   return offer;
 };
@@ -91,60 +86,62 @@ var generateAuthorInfo = function (number) {
   return {avatar: 'img/avatars/user0' + number + '.png'};
 };
 
-var generateAd = function (number) {
-  var ad = {};
+var generateAdvert = function (number) {
+  var advert = {};
 
-  ad['author'] = generateAuthorInfo(number);
-  ad['offer'] = generateOffer();
-  ad['location'] = generateLocation();
+  advert['author'] = generateAuthorInfo(number);
+  advert['location'] = generateLocation();
+  advert['offer'] = generateOffer(getLocationValue(advert.location));
 
-  return ad;
+  return advert;
 };
 
-var generateSimilarAds = function (count) {
-  var adsArr = [];
+var generateSimilarAdverts = function (count) {
+  var adverts = [];
 
   for (var i = 0; i < count; i++) {
-    adsArr.push(generateAd(i + 1));
+    adverts.push(generateAdvert(i + 1));
   }
 
-  return adsArr;
+  return adverts;
 };
 
-var enableActiveModeMap = function () {
+var enableMap = function () {
   if (map && map.classList.contains('map--faded')) {
     map.classList.remove('map--faded');
   }
 };
 
-var renderPin = function (ad) {
+var renderPin = function (advert) {
   var newPin = templatePin.cloneNode(true);
   var button = newPin.querySelector('button');
   var img = newPin.querySelector('img');
 
-  button.style.left = (ad.location.x - (PIN_WIDTH / 2)) + 'px';
-  button.style.top = (ad.location.y - PIN_HEIGHT) + 'px';
-  img.src = ad.author.avatar;
-  img.alt = ad.offer.title;
+  button.style.left = (advert.location.x - (PIN_WIDTH / 2)) + 'px';
+  button.style.top = (advert.location.y - PIN_HEIGHT) + 'px';
+  img.src = advert.author.avatar;
+  img.alt = advert.offer.title;
 
   return newPin;
 };
 
-var renderPinsOfSimilarAds = function (adsArr) {
+var renderAllPins = function (adverts) {
   var fragment = document.createDocumentFragment();
 
-  for (var i = 0; i < adsArr.length; i++) {
-    fragment.appendChild(renderPin(adsArr[i]));
+  for (var i = 0; i < adverts.length; i++) {
+    fragment.appendChild(renderPin(adverts[i]));
   }
 
   return fragment;
 };
 
 var init = function () {
-  enableActiveModeMap();
+  enableMap();
 
-  var pinsOfSimilarAds = renderPinsOfSimilarAds(generateSimilarAds(ADS_COUNT));
-  pinsLocation.appendChild(pinsOfSimilarAds);
+  var pinsOfSimilarAdverts = renderAllPins(generateSimilarAdverts(ADVERTS_COUNT));
+  if (pinsLocation) {
+    pinsLocation.appendChild(pinsOfSimilarAdverts);
+  }
 };
 
 init();
