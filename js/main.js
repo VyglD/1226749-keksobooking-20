@@ -3,25 +3,33 @@
 var ADVERTS_COUNT = 8;
 var MAX_HOUSE_PRICE = 1000000;
 var MAX_ROOMS = 100;
-var HOUSE_TYPE = ['bungalo', 'house', 'flat', 'palace'];
+var HOUSE_TYPES = ['bungalo', 'house', 'flat', 'palace'];
 var TIMES = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 80;
 
-var MinPrice = {
-  'bungalo': 0,
-  'house': 1000,
-  'flat': 5000,
-  'palace': 10000
-};
-
-var HouseTypeRU = {
-  'bungalo': 'Бунгало',
-  'house': 'Дом',
-  'flat': 'Квартира',
-  'palace': 'Дворец'
+var Placement = {
+  BUNGALO: {
+    name: 'Бунгало',
+    minPrice: 0,
+  },
+  HOUSE: {
+    name: 'Дом',
+    minPrice: 1000,
+  },
+  FLAT: {
+    name: 'Квартира',
+    minPrice: 5000,
+  },
+  PALACE: {
+    name: 'Дворец',
+    minPrice: 10000,
+  },
+  fromId: function (id) {
+    return this[id.toUpperCase()];
+  },
 };
 
 var map = document.querySelector('.map');
@@ -59,50 +67,36 @@ var generateRandomCountGuests = function (roomsCount) {
 };
 
 var generateRandomPrice = function (houseType) {
-  return getRandomNumber(MinPrice[houseType], MAX_HOUSE_PRICE);
-};
-
-var generateLocation = function () {
-  return ({
-    x: getRandomNumber(0, 650),
-    y: getRandomNumber(130, 630)
-  });
-};
-
-var getLocationValue = function (location) {
-  return [location.x, location.y].join(',');
-};
-
-var generateOffer = function (location) {
-  var offer = {};
-
-  offer['title'] = 'Заголовок';
-  offer['address'] = location;
-  offer['type'] = getRandomElement(HOUSE_TYPE);
-  offer['price'] = generateRandomPrice(offer['type']);
-  offer['rooms'] = getRandomNumber(0, MAX_ROOMS);
-  offer['guests'] = generateRandomCountGuests(offer['rooms']);
-  offer['checkin'] = getRandomElement(TIMES);
-  offer['checkout'] = offer['checkin'];
-  offer['features'] = getRandomSubArray(FEATURES);
-  offer['description'] = 'Описание';
-  offer['photos'] = getRandomSubArray(PHOTOS);
-
-  return offer;
-};
-
-var generateAuthorInfo = function (number) {
-  return {avatar: 'img/avatars/user0' + number + '.png'};
+  return getRandomNumber(Placement.fromId(houseType).minPrice, MAX_HOUSE_PRICE);
 };
 
 var generateAdvert = function (number) {
-  var advert = {};
+  return {
+    author: {
+      avatar: 'img/avatars/user0' + number + '.png',
+    },
+    location: {
+      x: getRandomNumber(0, 650),
+      y: getRandomNumber(130, 630),
+    },
+    offer: {
+      title: 'Заголовок',
+      type: getRandomElement(HOUSE_TYPES),
+      rooms: getRandomNumber(0, MAX_ROOMS),
+      checkin: getRandomElement(TIMES),
+      features: getRandomSubArray(FEATURES),
+      description: 'Описание',
+      photos: getRandomSubArray(PHOTOS),
+    },
+    init: function () {
+      this.offer.address = [this.location.x, this.location.y].join(',');
+      this.offer.price = generateRandomPrice(this.offer.type);
+      this.offer.guests = generateRandomCountGuests(this.offer.rooms);
+      this.offer.checkout = this.offer.checkin;
 
-  advert['author'] = generateAuthorInfo(number);
-  advert['location'] = generateLocation();
-  advert['offer'] = generateOffer(getLocationValue(advert.location));
-
-  return advert;
+      return this;
+    }
+  }.init();
 };
 
 var generateSimilarAdverts = function (count) {
@@ -158,32 +152,27 @@ var renderAdvert = function (advert) {
   var photoContainer = newAdvert.querySelector('.popup__photos');
   var photo = photoContainer.querySelector('img').cloneNode(true);
 
-  if (advert && advert['offer'] && advert['author']) {
-    title.textContent = advert['offer']['title'];
-    address.textContent = advert['offer']['address'];
-    price.textContent = advert['offer']['price'] + '₽/ночь';
-    houseType.textContent = HouseTypeRU[advert['offer']['type']];
-    capacity.textContent = advert['offer']['rooms'] + ' комнаты для ' + advert['offer']['guests'] + ' гостей';
-    time.textContent = 'Заезд после ' + advert['offer']['checkin'] + ', выезд до ' + advert['offer']['checkout'];
-    description.textContent = advert['offer']['description'];
-    avatar.src = advert['author']['avatar'];
+  title.textContent = advert.offer.title;
+  address.textContent = advert.offer.address;
+  price.textContent = advert.offer.price + '₽/ночь';
+  houseType.textContent = Placement.fromId(advert.offer.type).name;
+  capacity.textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей';
+  time.textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout;
+  description.textContent = advert.offer.description;
+  avatar.src = advert.author.avatar;
 
-    Array.prototype.forEach.call(features.children, function (node) {
+  Array.prototype.forEach.call(features.children, function (node) {
+    if ((advert.offer.features).indexOf(node.classList[1].split('--')[1]) < 0) {
       node.classList.add('hidden');
-      advert['offer']['features'].forEach(function (elem) {
-        if (node.classList.contains('popup__feature--' + elem)) {
-          node.classList.remove('hidden');
-        }
-      });
-    });
+    }
+  });
 
-    photoContainer.innerHTML = '';
-    advert['offer']['photos'].forEach(function (elem) {
-      var img = photo.cloneNode(true);
-      img.src = elem;
-      photoContainer.appendChild(img);
-    });
-  }
+  photoContainer.innerHTML = '';
+  advert.offer.photos.forEach(function (elem) {
+    var img = photo.cloneNode(true);
+    img.src = elem;
+    photoContainer.appendChild(img);
+  });
 
   return newAdvert;
 };
