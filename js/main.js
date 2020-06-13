@@ -270,8 +270,11 @@ var switchPageMode = function (visible) {
 };
 
 var checkValidityGuestsField = function () {
-  if ((guestsField.value > (roomsField.value % 100)) ||
-   (parseInt(guestsField.value, 10) === 0 && roomsField.value < 100)) {
+  if (parseInt(guestsField.value, 10) > parseInt(roomsField.value, 10)) {
+    guestsField.setCustomValidity('Количество мест не может быть больше количества комнат');
+    return false;
+  } else if (roomsField.value % MAX_ROOMS && !(guestsField.value % MAX_ROOMS) ||
+  ((parseInt(roomsField.value, 10) === MAX_ROOMS) && parseInt(guestsField.value, 10) !== 0)) {
     guestsField.setCustomValidity('Неверное количество мест');
     return false;
   }
