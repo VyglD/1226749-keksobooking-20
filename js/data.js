@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var UTIL_MODULE = window.util;
+  var UTIL = window.util;
 
   var MAX_HOUSE_PRICE = 1000000;
   var MAX_ROOMS = 100;
@@ -10,12 +10,6 @@
     2,
     3,
     MAX_ROOMS,
-  ];
-  var HOUSE_TYPES = [
-    'bungalo',
-    'house',
-    'flat',
-    'palace'
   ];
   var TIMES = [
     '12:00',
@@ -52,21 +46,22 @@
     PALACE: {
       name: 'Дворец',
       minPrice: 10000,
-    },
-    fromId: function (id) {
-      return this[id.toUpperCase()];
-    },
+    }
+  };
+
+  var getRandomHouseType = function () {
+    return UTIL.getRandomElement(Object.keys(Placement)).toLowerCase();
   };
 
   var generateRandomCountGuests = function (roomsCount) {
     return roomsCount === MAX_ROOMS
       ? 0
-      : UTIL_MODULE.getRandomNumber(1, roomsCount);
+      : UTIL.getRandomNumber(1, roomsCount);
   };
 
   var generateRandomPrice = function (houseType) {
-    return UTIL_MODULE.getRandomNumber(
-        Placement.fromId(houseType).minPrice, MAX_HOUSE_PRICE
+    return UTIL.getRandomNumber(
+        Placement[houseType.toUpperCase()].minPrice, MAX_HOUSE_PRICE
     );
   };
 
@@ -76,20 +71,20 @@
         avatar: 'img/avatars/user0' + number + '.png',
       },
       location: {
-        x: UTIL_MODULE.getRandomNumber(0, 650),
-        y: UTIL_MODULE.getRandomNumber(130, 630),
+        x: UTIL.getRandomNumber(0, 650),
+        y: UTIL.getRandomNumber(130, 630),
       },
       offer: {
         title: 'Заголовок',
-        type: UTIL_MODULE.getRandomElement(HOUSE_TYPES),
-        rooms: UTIL_MODULE.getRandomElement(ROOMS_COUNT),
-        checkin: UTIL_MODULE.getRandomElement(TIMES),
-        features: UTIL_MODULE.getRandomSubArray(FEATURES),
+        rooms: UTIL.getRandomElement(ROOMS_COUNT),
+        checkin: UTIL.getRandomElement(TIMES),
+        features: UTIL.getRandomSubArray(FEATURES),
         description: 'Описание',
-        photos: UTIL_MODULE.getRandomSubArray(PHOTOS),
+        photos: UTIL.getRandomSubArray(PHOTOS),
       },
       init: function () {
         this.offer.address = [this.location.x, this.location.y].join(',');
+        this.offer.type = getRandomHouseType();
         this.offer.price = generateRandomPrice(this.offer.type);
         this.offer.guests = generateRandomCountGuests(this.offer.rooms);
         this.offer.checkout = this.offer.checkin;
@@ -108,6 +103,7 @@
   window.data = {
     generateAdverts: generateAdverts,
     Placement: Placement,
+    MAX_ROOMS: MAX_ROOMS,
   };
 
 })();

@@ -2,21 +2,16 @@
 
 (function () {
 
-  var UTIL_MODULE = window.util;
-  var DATA_MODULE = window.data;
-  var PIN_MODULE = window.pin;
-  var MAIN_PIN_MODULE = window.mainPin;
+  var UTIL = window.util;
+  var DATA = window.data;
+  var PIN = window.pin;
+  var MAIN_PIN = window.mainPin;
 
   var ADVERTS_COUNT = 8;
-  var LEFT_KEY_MOUSE_CODE = 0;
-
-  var Key = {
-    ENTER: 'Enter',
-    ESCAPE: 'Escape',
-  };
 
   var map = document.querySelector('.map');
   var pinsLocation = map.querySelector('.map__pins');
+  var mainPin = map.querySelector('.map__pin--main');
   var filter = map.querySelector('.map__filters');
 
   var pinNodes = [];
@@ -28,21 +23,21 @@
   var setVisibilityPins = function (isVisible) {
     pinNodes.forEach(function (pin) {
       if (isVisible) {
-        UTIL_MODULE.showElement(pin);
+        UTIL.showElement(pin);
       } else {
-        UTIL_MODULE.hideElement(pin);
+        UTIL.hideElement(pin);
       }
     });
   };
 
   var setMapEnable = function (isEnabled) {
     if (isEnabled) {
-      UTIL_MODULE.removeClassFromElement(map, 'map--faded');
+      UTIL.removeClassFromElement(map, 'map--faded');
     } else {
-      UTIL_MODULE.addClassToElement(map, 'map--faded');
+      UTIL.addClassToElement(map, 'map--faded');
     }
 
-    UTIL_MODULE.setEnableForm(filter, isEnabled);
+    UTIL.setEnableForm(filter, isEnabled);
     setVisibilityPins(isEnabled);
   };
 
@@ -53,35 +48,37 @@
       setStatus(isEnableMap);
     }
 
-    setLocationMainPin(MAIN_PIN_MODULE.getLocation(isEnableMap));
+    setLocationMainPin(MAIN_PIN.getLocation(isEnableMap));
   };
 
   var init = function (setLocationMainPin, getStatus, setStatus) {
-    var mainPin = MAIN_PIN_MODULE.mainPin;
-    var similarAdverts = DATA_MODULE.generateAdverts(ADVERTS_COUNT);
-    var pinsFragment = PIN_MODULE.getPins(similarAdverts);
+    var similarAdverts = DATA.generateAdverts(ADVERTS_COUNT);
+    var pinsFragment = PIN.getPins(similarAdverts);
     pinsLocation.appendChild(pinsFragment);
 
     pinNodes = getPinNodes();
 
-    map.addEventListener('mousedown', function (evt) {
-      if ((evt.button === LEFT_KEY_MOUSE_CODE)
-          && (evt.path.indexOf(mainPin) !== -1)) {
-        onMainPinAction(setLocationMainPin, getStatus, setStatus);
-      }
+    mainPin.addEventListener('mousedown', function (evt) {
+      UTIL.isLeftMouseKeyEvent(
+          evt,
+          onMainPinAction.bind(null, setLocationMainPin, getStatus, setStatus)
+      );
     });
 
-    map.addEventListener('keydown', function (evt) {
-      if (evt.key === Key.ENTER) {
-        onMainPinAction(setLocationMainPin);
-      }
+    mainPin.addEventListener('keydown', function (evt) {
+      UTIL.isEnterEvent(
+          evt,
+          onMainPinAction.bind(null, setLocationMainPin, getStatus, setStatus)
+      );
     });
 
-    setLocationMainPin(MAIN_PIN_MODULE.getLocation(getStatus()));
+    setLocationMainPin(MAIN_PIN.getLocation(getStatus()));
+
+    window.map.setMapEnable = setMapEnable;
   };
 
   window.map = {
     init: init,
-    setMapEnable: setMapEnable
   };
+
 })();

@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var DATA_MODULE = window.data;
+  var DATA = window.data;
 
   var templateCard = document.querySelector('#card').content;
 
@@ -22,8 +22,7 @@
     title.textContent = advert.offer.title;
     address.textContent = advert.offer.address;
     price.textContent = advert.offer.price + '₽/ночь';
-    houseType.textContent = DATA_MODULE
-                            .Placement.fromId(advert.offer.type).name;
+    houseType.textContent = DATA.Placement[advert.offer.type.toUpperCase()].name;
     capacity.textContent = advert.offer.rooms + ' комнаты для ' +
                             advert.offer.guests + ' гостей';
     time.textContent = 'Заезд после ' + advert.offer.checkin +

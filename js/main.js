@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  var MAP_MODULE = window.map;
-  var FORM_MODULE = window.form;
+  var MAP = window.map;
+  var FORM = window.form;
 
   var isEnablePage = false;
 
@@ -12,19 +12,20 @@
 
   var setPageStatus = function (isEnable) {
     isEnablePage = isEnable;
-    MAP_MODULE.setMapEnable(isEnable);
-    FORM_MODULE.setFormEnable(isEnable);
+    MAP.setMapEnable(isEnable);
+    FORM.setFormEnable(isEnable);
   };
 
-  MAP_MODULE.init(
-      FORM_MODULE.setCurrentAddress,
+  FORM.init(
       getPageStatus,
       setPageStatus
   );
-  FORM_MODULE.init(
+  MAP.init(
+      FORM.setCurrentAddress,
       getPageStatus,
       setPageStatus
   );
+
   setPageStatus(false);
 
 })();

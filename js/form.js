@@ -1,70 +1,83 @@
 'use strict';
 
 (function () {
-  var UTIL_MODULE = window.util;
+  var UTIL = window.util;
+  var DATA = window.data;
+
+  var COUNT_GUESTS_FOR_MAX_ROOMS = 0;
 
   var adForm = document.querySelector('.ad-form');
   var addressField = document.querySelector('#address');
   var roomsField = document.querySelector('#room_number');
   var guestsField = document.querySelector('#capacity');
-
-  var maxRooms = UTIL_MODULE.getMaxElement(
-      Array.prototype.map.call(
-          document.querySelectorAll('#room_number option'), function (option) {
-            return option.value;
-          })
-  );
+  var resetButton = document.querySelector('.ad-form__reset');
 
   var setCurrentAddress = function (address) {
     addressField.value = address;
   };
 
-  var setFormEnable = function (isEnable) {
-    if (isEnable) {
-      UTIL_MODULE.removeClassFromElement(adForm, 'ad-form--disabled');
-    } else {
-      UTIL_MODULE.addClassToElement(adForm, 'ad-form--disabled');
-    }
-
-    UTIL_MODULE.setEnableForm(adForm, isEnable);
-  };
-
-  var checkValidityGuestsField = function () {
+  var checkGuestsField = function () {
     if (parseInt(guestsField.value, 10) > parseInt(roomsField.value, 10)) {
       guestsField.setCustomValidity(
           'Количество мест не может быть больше количества комнат'
       );
-      return false;
+    } else if (
+      ((parseInt(roomsField.value, 10) === DATA.MAX_ROOMS)
+        && (parseInt(guestsField.value, 10) === COUNT_GUESTS_FOR_MAX_ROOMS))
+      || ((parseInt(roomsField.value, 10) !== DATA.MAX_ROOMS)
+        && ((parseInt(guestsField.value, 10) !== COUNT_GUESTS_FOR_MAX_ROOMS)))
+    ) {
+      guestsField.setCustomValidity('');
+    } else if (parseInt(roomsField.value, 10) === DATA.MAX_ROOMS) {
+      guestsField.setCustomValidity('Для ' + DATA.MAX_ROOMS +
+                      ' комнат доступен только вариант "не для гостей"');
+    } else {
+      guestsField.setCustomValidity('Данная опция доступна только для ' +
+                                      DATA.MAX_ROOMS + ' комнат');
     }
-
-    if (roomsField.value % maxRooms && !(guestsField.value % maxRooms)
-        || ((parseInt(roomsField.value, 10) === maxRooms)
-             && parseInt(guestsField.value, 10) !== 0)) {
-      guestsField.setCustomValidity('Неверное количество мест');
-      return false;
-    }
-
-    guestsField.setCustomValidity('');
-
-    return true;
   };
 
-  var init = function () {
-    adForm.addEventListener('submit', function (evt) {
-      if (!checkValidityGuestsField()) {
-        evt.preventDefault();
-      }
-    });
+  var onSubmitClick = function (evt) {
+    checkGuestsField();
 
-    adForm.addEventListener('input', function () {
-      checkValidityGuestsField();
-    });
+    if (!adForm.checkValidity()) {
+      evt.preventDefault();
+    }
+  };
+
+  var init = function (getPageStatus, setPageStatus) {
+
+    var setFormEnable = function (isEnable) {
+      if (isEnable) {
+        UTIL.removeClassFromElement(adForm, 'ad-form--disabled');
+
+        resetButton.addEventListener('click', onResetButtonClick);
+        adForm.addEventListener('submit', onSubmitClick);
+        adForm.addEventListener('input', checkGuestsField);
+      } else {
+        UTIL.addClassToElement(adForm, 'ad-form--disabled');
+
+        resetButton.removeEventListener('click', onResetButtonClick);
+        adForm.removeEventListener('submit', onSubmitClick);
+        adForm.removeEventListener('input', checkGuestsField);
+      }
+
+      UTIL.setEnableForm(adForm, isEnable);
+    };
+
+    // Временная функция заглушка
+    var onResetButtonClick = function (evt) {
+      evt.preventDefault();
+
+      setPageStatus(false);
+    };
+
+    window.form.setCurrentAddress = setCurrentAddress;
+    window.form.setFormEnable = setFormEnable;
   };
 
   window.form = {
-    init: init,
-    setCurrentAddress: setCurrentAddress,
-    setFormEnable: setFormEnable,
+    init: init
   };
 
 })();

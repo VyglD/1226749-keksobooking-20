@@ -23,7 +23,6 @@
   };
 
   window.mainPin = {
-    mainPin: mainPin,
     getLocation: getLocation,
   };
 

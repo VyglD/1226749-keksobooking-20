@@ -1,6 +1,14 @@
 'use strict';
 
 (function () {
+
+  var KeyCode = {
+    ESC_KEYCODE: 27,
+    ENTER_KEYCODE: 13,
+  };
+
+  var LEFT_KEY_MOUSE_CODE = 0;
+
   var getRandomNumber = function (min, max) {
     return Math.round(Math.random() * (max - min) + min);
   };
@@ -53,6 +61,24 @@
     });
   };
 
+  var isEscEvent = function (evt, action) {
+    if (evt.keyCode === KeyCode.ESC_KEYCODE) {
+      action();
+    }
+  };
+
+  var isEnterEvent = function (evt, action) {
+    if (evt.keyCode === KeyCode.ENTER_KEYCODE) {
+      action();
+    }
+  };
+
+  var isLeftMouseKeyEvent = function (evt, action) {
+    if (evt.button === LEFT_KEY_MOUSE_CODE) {
+      action();
+    }
+  };
+
   window.util = {
     getRandomNumber: getRandomNumber,
     getRandomElement: getRandomElement,
@@ -64,6 +90,9 @@
     showElement: showElement,
     hideElement: hideElement,
     setEnableForm: setEnableForm,
+    isEscEvent: isEscEvent,
+    isEnterEvent: isEnterEvent,
+    isLeftMouseKeyEvent: isLeftMouseKeyEvent,
   };
 
 })();
