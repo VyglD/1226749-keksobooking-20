@@ -3,11 +3,10 @@
 (function () {
 
   var UTIL = window.util;
-  var DATA = window.data;
   var PIN = window.pin;
   var MAIN_PIN = window.mainPin;
-
-  var ADVERTS_COUNT = 8;
+  var MESSAGE = window.message;
+  var BACKEND = window.backend;
 
   var map = document.querySelector('.map');
   var pinsLocation = map.querySelector('.map__pins');
@@ -30,6 +29,16 @@
         UTIL.hideElement(pin);
       }
     });
+  };
+
+  var onAdvertsLoad = function (adverts) {
+    pinsLocation.appendChild(PIN.getPins(adverts));
+    pinNodes = getPinNodes();
+    setVisibilityPins(false);
+  };
+
+  var onAdvertsError = function (errorMessage) {
+    MESSAGE.showErrorMessage(errorMessage);
   };
 
   var setLocationMainPin = function (location) {
@@ -60,11 +69,7 @@
       setLocationMainPin(MAIN_PIN.getLocation(enableMap));
     };
 
-    var similarAdverts = DATA.generateAdverts(ADVERTS_COUNT);
-    var pinsFragment = PIN.getPins(similarAdverts);
-    pinsLocation.appendChild(pinsFragment);
-
-    pinNodes = getPinNodes();
+    BACKEND.load(onAdvertsLoad, onAdvertsError);
 
     mainPin.addEventListener('mousedown', function (evt) {
       UTIL.isLeftMouseKeyEvent(evt, onMainPinAction);
