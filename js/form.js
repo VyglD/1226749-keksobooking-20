@@ -7,14 +7,9 @@
   var MAX_ROOMS_GUESTS = 0;
 
   var adForm = document.querySelector('.ad-form');
-  var addressField = document.querySelector('#address');
   var roomsField = document.querySelector('#room_number');
   var guestsField = document.querySelector('#capacity');
   var resetButton = document.querySelector('.ad-form__reset');
-
-  var setCurrentAddress = function (address) {
-    addressField.value = address;
-  };
 
   var onFormInput = function () {
     var guestsCount = parseInt(guestsField.value, 10);
@@ -33,7 +28,7 @@
       guestsField.setCustomValidity('Для ' + DATA.MAX_ROOMS +
                       ' комнат доступен только вариант "не для гостей"');
     } else {
-      guestsField.setCustomValidity('Данная опция доступна только для ' +
+      guestsField.setCustomValidity('Вариант "не для гостей" доступен только для ' +
                                       DATA.MAX_ROOMS + ' комнат');
     }
   };
@@ -46,10 +41,10 @@
     }
   };
 
-  var init = function (getPageStatus, setPageStatus) {
+  var init = function (setPageStatus) {
 
-    var setFormEnable = function (isEnable) {
-      if (isEnable) {
+    var setFormEnable = function (enable) {
+      if (enable) {
         UTIL.removeClassFromElement(adForm, 'ad-form--disabled');
 
         resetButton.addEventListener('click', onResetButtonClick);
@@ -63,7 +58,7 @@
         adForm.removeEventListener('input', onFormInput);
       }
 
-      UTIL.setEnableForm(adForm, isEnable);
+      UTIL.setEnableForm(adForm, enable);
     };
 
     // Временная функция заглушка
@@ -73,7 +68,6 @@
       setPageStatus(false);
     };
 
-    window.form.setCurrentAddress = setCurrentAddress;
     window.form.setFormEnable = setFormEnable;
   };
 

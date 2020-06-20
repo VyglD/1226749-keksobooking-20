@@ -14,6 +14,8 @@
   var mainPin = map.querySelector('.map__pin--main');
   var filter = map.querySelector('.map__filters');
 
+  var mainPinLocationField = document.querySelector('#address');
+
   var pinNodes = [];
 
   var getPinNodes = function () {
@@ -30,28 +32,34 @@
     });
   };
 
-  var setMapEnable = function (isEnabled) {
-    if (isEnabled) {
-      UTIL.removeClassFromElement(map, 'map--faded');
-    } else {
-      UTIL.addClassToElement(map, 'map--faded');
-    }
-
-    UTIL.setEnableForm(filter, isEnabled);
-    setVisibilityPins(isEnabled);
+  var setLocationMainPin = function (location) {
+    mainPinLocationField.value = location;
   };
 
-  var onMainPinAction = function (setLocationMainPin, getStatus, setStatus) {
-    var isEnableMap = getStatus();
-    if (getStatus() === false) {
-      isEnableMap = true;
-      setStatus(isEnableMap);
-    }
+  var init = function (getStatus, setStatus) {
 
-    setLocationMainPin(MAIN_PIN.getLocation(isEnableMap));
-  };
+    var setMapEnable = function (enabled) {
+      if (enabled) {
+        UTIL.removeClassFromElement(map, 'map--faded');
+      } else {
+        UTIL.addClassToElement(map, 'map--faded');
+      }
 
-  var init = function (setLocationMainPin, getStatus, setStatus) {
+      UTIL.setEnableForm(filter, enabled);
+      setVisibilityPins(enabled);
+      setLocationMainPin(MAIN_PIN.getLocation(getStatus()));
+    };
+
+    var onMainPinAction = function () {
+      var enableMap = getStatus();
+      if (getStatus() === false) {
+        enableMap = true;
+        setStatus(enableMap);
+      }
+
+      setLocationMainPin(MAIN_PIN.getLocation(enableMap));
+    };
+
     var similarAdverts = DATA.generateAdverts(ADVERTS_COUNT);
     var pinsFragment = PIN.getPins(similarAdverts);
     pinsLocation.appendChild(pinsFragment);
@@ -59,17 +67,11 @@
     pinNodes = getPinNodes();
 
     mainPin.addEventListener('mousedown', function (evt) {
-      UTIL.isLeftMouseKeyEvent(
-          evt,
-          onMainPinAction.bind(null, setLocationMainPin, getStatus, setStatus)
-      );
+      UTIL.isLeftMouseKeyEvent(evt, onMainPinAction);
     });
 
     mainPin.addEventListener('keydown', function (evt) {
-      UTIL.isEnterEvent(
-          evt,
-          onMainPinAction.bind(null, setLocationMainPin, getStatus, setStatus)
-      );
+      UTIL.isEnterEvent(evt, onMainPinAction);
     });
 
     setLocationMainPin(MAIN_PIN.getLocation(getStatus()));

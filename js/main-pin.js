@@ -14,10 +14,10 @@
     return parseInt(value, 10);
   };
 
-  var getLocation = function (isEnabledMap) {
+  var getLocation = function (enabledMap) {
     var x = getCoordinate(mainPin.style.left) + MAIN_PIN_WIDTH / 2;
     var y = getCoordinate(mainPin.style.top) + MAIN_PIN_HEIGHT / 2;
-    return isEnabledMap
+    return enabledMap
       ? x + ', ' + (y + (MAIN_PIN_HEIGHT / 2) + MAIN_PIN_POINTER_HEIGHT)
       : x + ', ' + y;
   };
