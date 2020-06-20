@@ -4,7 +4,7 @@
   var UTIL = window.util;
   var DATA = window.data;
 
-  var COUNT_GUESTS_FOR_MAX_ROOMS = 0;
+  var MAX_ROOMS_GUESTS = 0;
 
   var adForm = document.querySelector('.ad-form');
   var addressField = document.querySelector('#address');
@@ -16,19 +16,20 @@
     addressField.value = address;
   };
 
-  var checkGuestsField = function () {
-    if (parseInt(guestsField.value, 10) > parseInt(roomsField.value, 10)) {
+  var onFormInput = function () {
+    var guestsCount = parseInt(guestsField.value, 10);
+    var roomsCount = parseInt(roomsField.value, 10);
+
+    if (guestsCount > roomsCount) {
       guestsField.setCustomValidity(
           'Количество мест не может быть больше количества комнат'
       );
     } else if (
-      ((parseInt(roomsField.value, 10) === DATA.MAX_ROOMS)
-        && (parseInt(guestsField.value, 10) === COUNT_GUESTS_FOR_MAX_ROOMS))
-      || ((parseInt(roomsField.value, 10) !== DATA.MAX_ROOMS)
-        && ((parseInt(guestsField.value, 10) !== COUNT_GUESTS_FOR_MAX_ROOMS)))
+      ((roomsCount === DATA.MAX_ROOMS) && (guestsCount === MAX_ROOMS_GUESTS))
+      || ((roomsCount !== DATA.MAX_ROOMS) && (guestsCount !== MAX_ROOMS_GUESTS))
     ) {
       guestsField.setCustomValidity('');
-    } else if (parseInt(roomsField.value, 10) === DATA.MAX_ROOMS) {
+    } else if (roomsCount === DATA.MAX_ROOMS) {
       guestsField.setCustomValidity('Для ' + DATA.MAX_ROOMS +
                       ' комнат доступен только вариант "не для гостей"');
     } else {
@@ -38,7 +39,7 @@
   };
 
   var onSubmitClick = function (evt) {
-    checkGuestsField();
+    onFormInput();
 
     if (!adForm.checkValidity()) {
       evt.preventDefault();
@@ -53,13 +54,13 @@
 
         resetButton.addEventListener('click', onResetButtonClick);
         adForm.addEventListener('submit', onSubmitClick);
-        adForm.addEventListener('input', checkGuestsField);
+        adForm.addEventListener('input', onFormInput);
       } else {
         UTIL.addClassToElement(adForm, 'ad-form--disabled');
 
         resetButton.removeEventListener('click', onResetButtonClick);
         adForm.removeEventListener('submit', onSubmitClick);
-        adForm.removeEventListener('input', checkGuestsField);
+        adForm.removeEventListener('input', onFormInput);
       }
 
       UTIL.setEnableForm(adForm, isEnable);
