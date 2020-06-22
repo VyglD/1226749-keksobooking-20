@@ -9,12 +9,12 @@
       name: 'Бунгало',
       minPrice: 0,
     },
-    HOUSE: {
-      name: 'Дом',
-      minPrice: 1000,
-    },
     FLAT: {
       name: 'Квартира',
+      minPrice: 1000,
+    },
+    HOUSE: {
+      name: 'Дом',
       minPrice: 5000,
     },
     PALACE: {
