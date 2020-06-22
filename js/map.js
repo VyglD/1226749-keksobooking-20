@@ -7,15 +7,18 @@
   var MAIN_PIN = window.mainPin;
   var MESSAGE = window.message;
   var BACKEND = window.backend;
+  var CARD = window.card;
 
   var map = document.querySelector('.map');
   var pinsLocation = map.querySelector('.map__pins');
   var mainPin = map.querySelector('.map__pin--main');
-  var filter = map.querySelector('.map__filters');
+  var filtersContainer = map.querySelector('.map__filters-container');
+  var filters = map.querySelector('.map__filters');
 
   var mainPinLocationField = document.querySelector('#address');
 
   var pinNodes = [];
+  var adverts = [];
 
   var getPinNodes = function () {
     return pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -31,8 +34,9 @@
     });
   };
 
-  var onAdvertsLoad = function (adverts) {
-    pinsLocation.appendChild(PIN.getPins(adverts));
+  var onAdvertsLoad = function (uploadedAdverts) {
+    adverts = uploadedAdverts;
+    pinsLocation.appendChild(PIN.getPins(uploadedAdverts));
     pinNodes = getPinNodes();
     setVisibilityPins(false);
   };
@@ -45,16 +49,63 @@
     mainPinLocationField.value = location;
   };
 
+  var onCloseButtonCardClick = function () {
+    var oldAdvert = map.querySelector('.map__card.popup');
+    if (oldAdvert) {
+      UTIL.removeClassFromElement(
+          map.querySelector('.map__pin--active'),
+          'map__pin--active'
+      );
+      oldAdvert.remove();
+    }
+    document.removeEventListener('keydown', onCardEscPress);
+  };
+
+  var onCardEscPress = function (evt) {
+    UTIL.isEscEvent(evt, onCloseButtonCardClick);
+  };
+
+  var onPinClick = function (evt) {
+    if (
+      evt.path.some(function (element) {
+        return element.classList
+          ? element.classList.contains('map__pin')
+              && !element.classList.contains('map__pin--main')
+          : false;
+      })
+    ) {
+      evt.path.forEach(function (element) {
+        if (element.classList && element.classList.contains('map__pin')) {
+          onCloseButtonCardClick();
+
+          UTIL.addClassToElement(element, 'map__pin--active');
+
+          map.insertBefore(
+              CARD.renderAdvert(adverts[Array.from(pinNodes).indexOf(element)]),
+              filtersContainer
+          );
+
+          var closeButtonCard = map.querySelector('.popup__close');
+          closeButtonCard.addEventListener('click', onCloseButtonCardClick);
+          document.addEventListener('keydown', onCardEscPress);
+        }
+      });
+    }
+  };
+
   var init = function (getStatus, setStatus) {
 
     var setMapEnable = function (enabled) {
       if (enabled) {
         UTIL.removeClassFromElement(map, 'map--faded');
+        map.addEventListener('click', onPinClick);
       } else {
         UTIL.addClassToElement(map, 'map--faded');
+        map.removeEventListener('click', onPinClick);
+        onCloseButtonCardClick();
       }
 
-      UTIL.setEnableForm(filter, enabled);
+      UTIL.setEnableForm(filters, enabled);
       setVisibilityPins(enabled);
       setLocationMainPin(MAIN_PIN.getLocation(getStatus()));
     };
