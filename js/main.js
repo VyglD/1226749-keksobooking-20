@@ -4,28 +4,21 @@
   var MAP = window.map;
   var FORM = window.form;
 
-  var isEnablePage = false;
+  var pageEnabled = false;
 
   var getPageStatus = function () {
-    return isEnablePage;
+    return pageEnabled;
   };
 
-  var setPageStatus = function (isEnable) {
-    isEnablePage = isEnable;
-    MAP.setMapEnable(isEnable);
-    FORM.setFormEnable(isEnable);
+  var setPageEnabled = function (enabled) {
+    pageEnabled = enabled;
+    MAP.setMapEnable(enabled);
+    FORM.setFormEnable(enabled);
   };
 
-  FORM.init(
-      getPageStatus,
-      setPageStatus
-  );
-  MAP.init(
-      FORM.setCurrentAddress,
-      getPageStatus,
-      setPageStatus
-  );
+  FORM.init(setPageEnabled);
+  MAP.init(getPageStatus, setPageEnabled);
 
-  setPageStatus(false);
+  setPageEnabled(false);
 
 })();

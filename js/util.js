@@ -55,9 +55,9 @@
     addClassToElement(element, 'hidden');
   };
 
-  var setEnableForm = function (form, isEnabled) {
+  var setEnableForm = function (form, enabled) {
     Array.prototype.forEach.call(form.children, function (child) {
-      child.disabled = !isEnabled;
+      child.disabled = !enabled;
     });
   };
 
