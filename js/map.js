@@ -65,31 +65,25 @@
     UTIL.isEscEvent(evt, onCloseButtonCardClick);
   };
 
+  var isPinTarget = function (evt) {
+    return evt.target.closest('.map__pin:not(.map__pin--main)');
+  };
+
   var onPinClick = function (evt) {
-    if (
-      evt.path.some(function (element) {
-        return element.classList
-          ? element.classList.contains('map__pin')
-              && !element.classList.contains('map__pin--main')
-          : false;
-      })
-    ) {
-      evt.path.forEach(function (element) {
-        if (element.classList && element.classList.contains('map__pin')) {
-          onCloseButtonCardClick();
+    var currentPin = isPinTarget(evt);
+    if (currentPin) {
+      onCloseButtonCardClick();
 
-          UTIL.addClassToElement(element, 'map__pin--active');
+      UTIL.addClassToElement(currentPin, 'map__pin--active');
 
-          map.insertBefore(
-              CARD.renderAdvert(adverts[Array.from(pinNodes).indexOf(element)]),
-              filtersContainer
-          );
+      map.insertBefore(
+          CARD.renderAdvert(adverts[Array.from(pinNodes).indexOf(currentPin)]),
+          filtersContainer
+      );
 
-          var closeButtonCard = map.querySelector('.popup__close');
-          closeButtonCard.addEventListener('click', onCloseButtonCardClick);
-          document.addEventListener('keydown', onCardEscPress);
-        }
-      });
+      var closeButtonCard = map.querySelector('.popup__close');
+      closeButtonCard.addEventListener('click', onCloseButtonCardClick);
+      document.addEventListener('keydown', onCardEscPress);
     }
   };
 

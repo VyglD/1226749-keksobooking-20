@@ -3,6 +3,7 @@
 (function () {
 
   var MAX_ROOMS = 100;
+  var MAX_ROOMS_GUESTS = 0;
 
   var Placement = {
     BUNGALO: {
@@ -26,6 +27,7 @@
   window.data = {
     Placement: Placement,
     MAX_ROOMS: MAX_ROOMS,
+    MAX_ROOMS_GUESTS: MAX_ROOMS_GUESTS,
   };
 
 })();

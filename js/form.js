@@ -4,7 +4,6 @@
   var UTIL = window.util;
   var DATA = window.data;
 
-  var MAX_ROOMS_GUESTS = 0;
   var IMAGE_TYPE = /(.*?)\.(gif|jpe?g|tiff?|png|bmp)$/i;
 
   var adForm = document.querySelector('.ad-form');
@@ -73,23 +72,17 @@
   var checkRoomsField = function () {
     var guestsCount = parseInt(guestsField.value, 10);
     var roomsCount = parseInt(roomsField.value, 10);
+    var errorMessage = '';
 
-    if (guestsCount > roomsCount) {
-      guestsField.setCustomValidity(
-          'Количество мест не может быть больше количества комнат'
-      );
-    } else if (
-      ((roomsCount === DATA.MAX_ROOMS) && (guestsCount === MAX_ROOMS_GUESTS))
-      || ((roomsCount !== DATA.MAX_ROOMS) && (guestsCount !== MAX_ROOMS_GUESTS))
-    ) {
-      guestsField.setCustomValidity('');
-    } else if (roomsCount === DATA.MAX_ROOMS) {
-      guestsField.setCustomValidity('Для ' + DATA.MAX_ROOMS +
-                      ' комнат доступен только вариант "не для гостей"');
-    } else {
-      guestsField.setCustomValidity('Вариант "не для гостей" доступен только для ' +
-                                      DATA.MAX_ROOMS + ' комнат');
+    if (roomsCount === DATA.MAX_ROOMS && guestsCount !== DATA.MAX_ROOMS_GUESTS) {
+      errorMessage = 'Для ' + DATA.MAX_ROOMS + ' комнат доступен только вариант "не для гостей"';
+    } else if (roomsCount !== DATA.MAX_ROOMS && guestsCount === DATA.MAX_ROOMS_GUESTS) {
+      errorMessage = 'Вариант "не для гостей" доступен только для ' + DATA.MAX_ROOMS + ' комнат';
+    } else if (guestsCount > roomsCount) {
+      errorMessage = 'Количество мест не может быть больше количества комнат';
     }
+
+    guestsField.setCustomValidity(errorMessage);
   };
 
   var checkFileField = function (evt, input) {
