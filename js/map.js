@@ -5,8 +5,6 @@
   var UTIL = window.util;
   var PIN = window.pin;
   var MAIN_PIN = window.mainPin;
-  var MESSAGE = window.message;
-  var BACKEND = window.backend;
   var CARD = window.card;
 
   var map = document.querySelector('.map');
@@ -17,14 +15,10 @@
 
   var mainPinLocationField = document.querySelector('#address');
 
-  var pinNodes = [];
-  var adverts = [];
-
-  var getPinNodes = function () {
-    return pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)');
-  };
+  var pins = [];
 
   var setVisibilityPins = function (isVisible) {
+    var pinNodes = pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)')
     pinNodes.forEach(function (pin) {
       if (isVisible) {
         UTIL.showElement(pin);
@@ -35,14 +29,16 @@
   };
 
   var onAdvertsLoad = function (uploadedAdverts) {
-    adverts = uploadedAdverts;
-    pinsLocation.appendChild(PIN.getPins(uploadedAdverts));
-    pinNodes = getPinNodes();
+    var pinsFragment = document.createDocumentFragment();
+    pins = PIN.getPins(uploadedAdverts);
+    pins.forEach(function (pin) {
+      pinsFragment.appendChild(pin.fragment);
+    });
+    pinsLocation.insertBefore(
+        pinsFragment,
+        mainPin
+    );
     setVisibilityPins(false);
-  };
-
-  var onAdvertsError = function (errorMessage) {
-    MESSAGE.showErrorMessage(errorMessage);
   };
 
   var setLocationMainPin = function (location) {
@@ -65,25 +61,32 @@
     UTIL.isEscEvent(evt, onCloseButtonCardClick);
   };
 
-  var isPinTarget = function (evt) {
-    return evt.target.closest('.map__pin:not(.map__pin--main)');
-  };
-
   var onPinClick = function (evt) {
-    var currentPin = isPinTarget(evt);
+    var currentPin = evt.target.closest('.map__pin:not(.map__pin--main)');
     if (currentPin) {
-      onCloseButtonCardClick();
+      var currentAdvert = map.querySelector('.map__card.popup');
+      var newAdvert = CARD.renderAdvert(pins.find(function (pin) {
+        if (pin.link === currentPin) {
+          return true;
+        }
+        return false;
+      }).advert);
 
-      UTIL.addClassToElement(currentPin, 'map__pin--active');
+      if (!(currentAdvert
+          && currentAdvert.innerHTML === newAdvert.firstElementChild.innerHTML)) {
+        onCloseButtonCardClick();
 
-      map.insertBefore(
-          CARD.renderAdvert(adverts[Array.from(pinNodes).indexOf(currentPin)]),
-          filtersContainer
-      );
+        UTIL.addClassToElement(currentPin, 'map__pin--active');
 
-      var closeButtonCard = map.querySelector('.popup__close');
-      closeButtonCard.addEventListener('click', onCloseButtonCardClick);
-      document.addEventListener('keydown', onCardEscPress);
+        map.insertBefore(
+            newAdvert,
+            filtersContainer
+        );
+
+        var closeButtonCard = map.querySelector('.popup__close');
+        closeButtonCard.addEventListener('click', onCloseButtonCardClick);
+        document.addEventListener('keydown', onCardEscPress);
+      }
     }
   };
 
@@ -114,8 +117,6 @@
       setLocationMainPin(MAIN_PIN.getLocation(enableMap));
     };
 
-    BACKEND.load(onAdvertsLoad, onAdvertsError);
-
     mainPin.addEventListener('mousedown', function (evt) {
       UTIL.isLeftMouseKeyEvent(evt, onMainPinAction);
     });
@@ -127,6 +128,7 @@
     setLocationMainPin(MAIN_PIN.getLocation(getStatus()));
 
     window.map.setMapEnable = setMapEnable;
+    window.map.onAdvertsLoad = onAdvertsLoad;
   };
 
   window.map = {

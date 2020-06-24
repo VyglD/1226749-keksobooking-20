@@ -21,10 +21,17 @@
   };
 
   var getPins = function (adverts) {
-    var pins = document.createDocumentFragment();
+    var pins = [];
 
     adverts.forEach(function (advert) {
-      pins.appendChild(createPinElement(advert));
+      var newPin = createPinElement(advert);
+      pins.push(
+          {
+            fragment: newPin,
+            link: newPin.firstElementChild,
+            advert: advert,
+          }
+      );
     });
 
     return pins;

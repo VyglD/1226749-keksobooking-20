@@ -17,7 +17,7 @@
   ];
   var resetButton = document.querySelector('.ad-form__reset');
 
-  var ImageInput = {
+  var imageInput = {
     AVATAR: {
       link: document.querySelector('#avatar'),
       view: document.querySelector('.ad-form-header__preview'),
@@ -39,18 +39,18 @@
                   property: 'checked',
                   value: node.checked,
                 };
-              } else if (node === ImageInput.AVATAR.link) {
-                var img = ImageInput.AVATAR.view.querySelector('img');
+              } else if (node === imageInput.AVATAR.link) {
+                var img = imageInput.AVATAR.view.querySelector('img');
                 defaultValues[node.id] = {
                   link: img,
                   property: 'src',
                   value: img.src,
                 };
-              } else if (node === ImageInput.IMAGES.link) {
+              } else if (node === imageInput.IMAGES.link) {
                 defaultValues[node.id] = {
-                  link: ImageInput.IMAGES.view,
+                  link: imageInput.IMAGES.view,
                   property: 'innerHTML',
-                  value: ImageInput.IMAGES.view.innerHTML,
+                  value: imageInput.IMAGES.view.innerHTML,
                 };
               } else {
                 defaultValues[node.id] = {
@@ -85,34 +85,12 @@
     guestsField.setCustomValidity(errorMessage);
   };
 
-  var checkFileField = function (evt, input) {
-    if (input.link.value !== '' && evt && evt.target === input.link) {
-      if (!IMAGE_TYPE.exec(input.link.value)) {
-        input.link.setCustomValidity('Выбранный файл не является изображением');
-      } else {
-        var img = input.view.querySelector('img');
-        if (img) {
-          img.src = URL.createObjectURL(input.link.files[0]);
-        } else {
-          var newImg = document.createElement('img');
-          newImg.src = URL.createObjectURL(input.link.files[0]);
-          newImg.width = '70';
-          newImg.height = '70';
-          newImg.alt = 'Фотография жилья';
-          input.view.appendChild(newImg);
-        }
-        input.link.setCustomValidity('');
-      }
-    }
-  };
-
   var checkTimeFields = function (evt) {
-    if (timeFields[0].value !== timeFields[1].value) {
-      if (evt && evt.target === timeFields[0]) {
-        timeFields[1].value = timeFields[0].value;
-      } else {
-        timeFields[0].value = timeFields[1].value;
-      }
+    if (timeFields[0].value !== timeFields[1].value
+          && timeFields.indexOf(evt.target) !== -1) {
+      timeFields.forEach(function (field) {
+        field.value = evt.target.value;
+      });
     }
   };
 
@@ -125,9 +103,51 @@
   var onFormInput = function (evt) {
     checkRoomsField();
     checkPriceField();
-    checkTimeFields(evt);
-    checkFileField(evt, ImageInput.AVATAR);
-    checkFileField(evt, ImageInput.IMAGES);
+    if (evt) {
+      checkTimeFields(evt);
+      saveImg(isFileInput(evt));
+    }
+  };
+
+  var isFileInput = function (evt) {
+    var fileInput = false;
+    Object.keys(imageInput).forEach(function (element) {
+      if (evt.target === imageInput[element].link) {
+        fileInput = imageInput[element];
+      }
+    });
+    return fileInput;
+  };
+
+  var checkFileField = function (fileInput) {
+    if (fileInput.link.value === '' || IMAGE_TYPE.exec(fileInput.link.value)) {
+      fileInput.link.setCustomValidity('');
+      return true;
+    }
+
+    fileInput.link.setCustomValidity('Выбранный файл не является изображением');
+    return false;
+  };
+
+  var saveImg = function (fileInput) {
+    if (fileInput) {
+      if (checkFileField(fileInput) && fileInput.link.files[0]) {
+        var img = fileInput.view.querySelector('img');
+        if (img) {
+          img.src = URL.createObjectURL(fileInput.link.files[0]);
+        } else {
+          var newImg = document.createElement('img');
+          newImg.src = URL.createObjectURL(fileInput.link.files[0]);
+          newImg.width = '70';
+          newImg.height = '70';
+          newImg.alt = 'Фотография жилья';
+          fileInput.view.appendChild(newImg);
+        }
+      } else {
+        var restoreElement = defaultValues[fileInput.link.id];
+        restoreElement.link[restoreElement.property] = restoreElement.value;
+      }
+    }
   };
 
   var onSubmitClick = function (evt) {
