@@ -32,41 +32,24 @@
 
   var getDefaultFormValues = function () {
     adForm.querySelectorAll('input:not(#address), select, textarea')
-            .forEach(function (node) {
-              if (node.type === 'checkbox') {
-                defaultValues[node.id] = {
-                  link: node,
-                  property: 'checked',
-                  value: node.checked,
-                };
-              } else if (node === imageInput.AVATAR.link) {
-                var img = imageInput.AVATAR.view.querySelector('img');
-                defaultValues[node.id] = {
-                  link: img,
-                  property: 'src',
-                  value: img.src,
-                };
-              } else if (node === imageInput.IMAGES.link) {
-                defaultValues[node.id] = {
-                  link: imageInput.IMAGES.view,
-                  property: 'innerHTML',
-                  value: imageInput.IMAGES.view.innerHTML,
-                };
-              } else {
-                defaultValues[node.id] = {
-                  link: node,
-                  property: 'value',
-                  value: node.value,
-                };
-              }
-            });
-  };
-
-  var setDefaultFormValues = function () {
-    Object.keys(defaultValues).forEach(function (field) {
-      defaultValues[field]['link'][defaultValues[field]['property']]
-                                             = defaultValues[field]['value'];
-    });
+      .forEach(function (node) {
+        if (node.type === 'checkbox') {
+          UTIL.getDefaultValue(defaultValues, node.id, node, 'checked', node.checked);
+        } else if (node === imageInput.AVATAR.link) {
+          var img = imageInput.AVATAR.view.querySelector('img');
+          UTIL.getDefaultValue(defaultValues, node.id, img, 'src', img.src);
+        } else if (node === imageInput.IMAGES.link) {
+          UTIL.getDefaultValue(
+              defaultValues,
+              node.id,
+              imageInput.IMAGES.view,
+              'innerHTML',
+              imageInput.IMAGES.view.innerHTML
+          );
+        } else {
+          UTIL.getDefaultValue(defaultValues, node.id, node, 'value', node.value);
+        }
+      });
   };
 
   var checkRoomsField = function () {
@@ -182,7 +165,7 @@
       evt.preventDefault();
 
       setPageStatus(false);
-      setDefaultFormValues();
+      UTIL.setDefaultValues(defaultValues);
     };
 
     getDefaultFormValues();
