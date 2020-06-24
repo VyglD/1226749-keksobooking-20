@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-
   var UTIL = window.util;
   var PIN = window.pin;
   var MAIN_PIN = window.mainPin;
@@ -58,51 +57,6 @@
         mainPin
     );
     setVisibilityPins(false);
-  };
-
-  var onCloseButtonCardClick = function () {
-    var oldAdvert = map.querySelector('.map__card.popup');
-    if (oldAdvert) {
-      UTIL.removeClassFromElement(
-          map.querySelector('.map__pin--active'),
-          'map__pin--active'
-      );
-      oldAdvert.remove();
-    }
-    document.removeEventListener('keydown', onCardEscPress);
-  };
-
-  var onCardEscPress = function (evt) {
-    UTIL.isEscEvent(evt, onCloseButtonCardClick);
-  };
-
-  var onPinClick = function (evt) {
-    var currentPin = evt.target.closest('.map__pin:not(.map__pin--main)');
-    if (currentPin) {
-      var currentAdvert = map.querySelector('.map__card.popup');
-      var newAdvert = CARD.renderAdvert(pins.find(function (pin) {
-        if (pin.link === currentPin) {
-          return true;
-        }
-        return false;
-      }).advert);
-
-      if (!(currentAdvert
-          && currentAdvert.innerHTML === newAdvert.firstElementChild.innerHTML)) {
-        onCloseButtonCardClick();
-
-        UTIL.addClassToElement(currentPin, 'map__pin--active');
-
-        map.insertBefore(
-            newAdvert,
-            filtersContainer
-        );
-
-        var closeButtonCard = map.querySelector('.popup__close');
-        closeButtonCard.addEventListener('click', onCloseButtonCardClick);
-        document.addEventListener('keydown', onCardEscPress);
-      }
-    }
   };
 
   var onCloseButtonCardClick = function () {

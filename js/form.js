@@ -77,7 +77,7 @@
     }
   };
 
-  var checkPriceField = function () {
+  var correctPriceField = function () {
     var minValue = DATA.Placement[typeField.value.toUpperCase()].minPrice;
     priceField.placeholder = minValue;
     priceField.min = minValue;
@@ -85,7 +85,7 @@
 
   var onFormInput = function (evt) {
     checkRoomsField();
-    checkPriceField();
+    correctPriceField();
     if (evt) {
       checkTimeFields(evt);
       saveImg(isFileInput(evt));
@@ -166,6 +166,7 @@
 
       setPageStatus(false);
       UTIL.setDefaultValues(defaultValues);
+      correctPriceField();
     };
 
     getDefaultFormValues();
