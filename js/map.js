@@ -18,7 +18,7 @@
   var pins = [];
 
   var setVisibilityPins = function (isVisible) {
-    var pinNodes = pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)')
+    var pinNodes = pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)');
     pinNodes.forEach(function (pin) {
       if (isVisible) {
         UTIL.showElement(pin);
