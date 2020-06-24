@@ -3,6 +3,8 @@
 (function () {
   var MAP = window.map;
   var FORM = window.form;
+  var BACKEND = window.backend;
+  var MESSAGE = window.message;
 
   var pageEnabled = false;
 
@@ -18,6 +20,8 @@
 
   FORM.init(setPageEnabled);
   MAP.init(getPageStatus, setPageEnabled);
+
+  BACKEND.load(MAP.onAdvertsLoad, MESSAGE.showErrorMessage);
 
   setPageEnabled(false);
 
