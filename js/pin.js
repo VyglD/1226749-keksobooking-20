@@ -27,7 +27,6 @@
       var newPin = createPinElement(advert);
       pins.push(
           {
-            fragment: newPin,
             link: newPin.firstElementChild,
             advert: advert,
           }
