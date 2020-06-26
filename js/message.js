@@ -1,37 +1,34 @@
 'use strict';
 
 (function () {
+  var UTIL = window.util;
 
-  var showErrorMessage = function (errorMessage) {
-    var onErrorAction = function () {
-      document.querySelector('#' + nodeId).remove();
-      document.removeEventListener('click', onErrorAction);
-      document.removeEventListener('keydown', onErrorAction);
+  var errorTemplate = document.querySelector('#error').content;
+
+  var showErrorMessage = function () {
+    var closeErrorMessage = function () {
+      document.querySelector('.error').remove();
+
+      document.removeEventListener('click', onPopupCloseClick);
+      document.removeEventListener('keydown', onPopupEscCPress);
     };
 
-    var node = document.createElement('div');
-    var nodeWidth = 300;
-    var nodeId = 'error-message';
+    var onPopupCloseClick = function (evt) {
+      if (evt.target.closest('.error__button')
+        || !evt.target.closest('.error__message')) {
+        closeErrorMessage();
+      }
+    };
 
-    node.id = nodeId;
-    node.style = 'position: fixed;' +
-                  'top: 50%;' +
-                  'left: 50%;' +
-                  'z-index: 100;' +
-                  'width: ' + nodeWidth + 'px;' +
-                  'margin: 0 0 0 ' + (nodeWidth / -2) + 'px;' +
-                  'padding: 10px;' +
-                  'font-size: 30px;' +
-                  'text-align: center;' +
-                  'color: white;' +
-                  'background-color: red;' +
-                  'cursor: pointer;';
+    var onPopupEscCPress = function (evt) {
+      UTIL.isEscEvent(evt, closeErrorMessage);
+    };
 
-    document.addEventListener('click', onErrorAction);
-    document.addEventListener('keydown', onErrorAction);
+    var popup = errorTemplate.cloneNode(true);
+    document.addEventListener('click', onPopupCloseClick);
+    document.addEventListener('keydown', onPopupEscCPress);
 
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
+    document.querySelector('main').appendChild(popup);
   };
 
   window.message = {

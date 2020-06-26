@@ -53,6 +53,21 @@
     }
   };
 
+  var getDefaultValue = function (defaultValues, id, link, property, value) {
+    defaultValues[id] = {
+      link: link,
+      property: property,
+      value: value,
+    };
+  };
+
+  var setDefaultValues = function (defaultValues) {
+    Object.keys(defaultValues).forEach(function (field) {
+      defaultValues[field]['link'][defaultValues[field]['property']]
+                                             = defaultValues[field]['value'];
+    });
+  };
+
   window.util = {
     removeClassFromElement: removeClassFromElement,
     addClassToElement: addClassToElement,
@@ -62,6 +77,8 @@
     isEscEvent: isEscEvent,
     isEnterEvent: isEnterEvent,
     isLeftMouseKeyEvent: isLeftMouseKeyEvent,
+    getDefaultValue: getDefaultValue,
+    setDefaultValues: setDefaultValues,
   };
 
 })();
