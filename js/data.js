@@ -29,11 +29,24 @@
     END: 630,
   };
 
+  var PriceName = {
+    LOW: 'low',
+    MIDDLE: 'middle',
+    HIGH: 'high',
+  };
+
+  var PriceValue = {
+    MIN: 10000,
+    MAX: 50000,
+  };
+
   window.data = {
     Placement: Placement,
     MAX_ROOMS: MAX_ROOMS,
     MAX_ROOMS_GUESTS: MAX_ROOMS_GUESTS,
     MainPinYMovementRestriction: MainPinYMovementRestriction,
+    PriceName: PriceName,
+    PriceValue: PriceValue,
   };
 
 })();
