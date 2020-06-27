@@ -21,19 +21,12 @@
   };
 
   var getPins = function (adverts) {
-    var pins = [];
-
-    adverts.forEach(function (advert) {
-      var newPin = createPinElement(advert);
-      pins.push(
-          {
-            link: newPin.firstElementChild,
-            advert: advert,
-          }
-      );
+    return adverts.map(function (advert) {
+      return {
+        link: createPinElement(advert).firstElementChild,
+        advert: advert,
+      };
     });
-
-    return pins;
   };
 
   window.pin = {
