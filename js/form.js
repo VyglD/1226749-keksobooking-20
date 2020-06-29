@@ -3,6 +3,8 @@
 (function () {
   var UTIL = window.util;
   var DATA = window.data;
+  var BACKEND = window.backend;
+  var MESSAGE = window.message;
 
   var IMAGE_TYPE = /(.*?)\.(gif|jpe?g|tiff?|png|bmp)$/i;
 
@@ -133,14 +135,6 @@
     }
   };
 
-  var onSubmitClick = function (evt) {
-    onFormInput();
-
-    if (!adForm.checkValidity()) {
-      evt.preventDefault();
-    }
-  };
-
   var init = function (setPageStatus) {
 
     var setFormEnable = function (enable) {
@@ -156,17 +150,33 @@
         resetButton.removeEventListener('click', onResetButtonClick);
         adForm.removeEventListener('submit', onSubmitClick);
         adForm.removeEventListener('input', onFormInput);
+
+        UTIL.setDefaultValues(defaultValues);
       }
 
       UTIL.setEnableForm(adForm, enable);
+      correctPriceField();
     };
 
     var onResetButtonClick = function (evt) {
       evt.preventDefault();
 
       setPageStatus(false);
-      UTIL.setDefaultValues(defaultValues);
-      correctPriceField();
+    };
+
+    var onSubmitClick = function (evt) {
+      evt.preventDefault();
+
+      onFormInput();
+
+      if (adForm.checkValidity()) {
+        BACKEND.save(new FormData(adForm),
+            MESSAGE.showSuccessMessage,
+            MESSAGE.showErrorMessage
+        );
+
+        setPageStatus(false);
+      }
     };
 
     getDefaultFormValues();
