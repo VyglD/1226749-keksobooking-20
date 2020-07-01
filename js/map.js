@@ -6,6 +6,7 @@
   var MAIN_PIN = window.mainPin;
   var CARD = window.card;
   var DATA = window.data;
+  var DEBOUNCE = window.debounce;
 
   var MAX_COUNT_PINS = 5;
   var NUMBER_TYPE = 'number';
@@ -194,7 +195,7 @@
 
     var pins = getSimilarAdverts();
 
-    showPins(pins);
+    DEBOUNCE.debounce(showPins.bind(null, pins));
   };
 
   var removeOldPins = function () {

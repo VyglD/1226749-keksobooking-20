@@ -4,35 +4,48 @@
   var UTIL = window.util;
 
   var errorTemplate = document.querySelector('#error').content;
+  var successTemplate = document.querySelector('#success').content;
 
-  var showErrorMessage = function () {
-    var closeErrorMessage = function () {
-      document.querySelector('.error').remove();
+  var showMessage = function (popup) {
+
+    var closeButton = popup.querySelector('button');
+    var message = popup.querySelector('p');
+
+    var closeMessage = function () {
+      popup.remove();
 
       document.removeEventListener('click', onPopupCloseClick);
       document.removeEventListener('keydown', onPopupEscCPress);
     };
 
     var onPopupCloseClick = function (evt) {
-      if (evt.target.closest('.error__button')
-        || !evt.target.closest('.error__message')) {
-        closeErrorMessage();
+      if (closeButton && evt.target.closest('.' + closeButton.className)
+          || !(message && evt.target.closest('.' + message.className))) {
+        closeMessage();
       }
     };
 
     var onPopupEscCPress = function (evt) {
-      UTIL.isEscEvent(evt, closeErrorMessage);
+      UTIL.isEscEvent(evt, closeMessage);
     };
 
-    var popup = errorTemplate.cloneNode(true);
     document.addEventListener('click', onPopupCloseClick);
     document.addEventListener('keydown', onPopupEscCPress);
 
     document.querySelector('main').appendChild(popup);
   };
 
+  var showErrorMessage = function () {
+    showMessage(errorTemplate.cloneNode(true).firstElementChild);
+  };
+
+  var showSuccessMessage = function () {
+    showMessage(successTemplate.cloneNode(true).firstElementChild);
+  };
+
   window.message = {
     showErrorMessage: showErrorMessage,
+    showSuccessMessage: showSuccessMessage,
   };
 
 })();
