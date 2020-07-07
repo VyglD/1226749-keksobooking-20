@@ -2,7 +2,6 @@
 
 (function () {
 
-  // var URL = 'https://javascript.pages.academy/keksobooking/data';
   var TIMEOUT_IN_MS = 10000;
   var JSON_RESPONSE_TYPE = 'json';
 
@@ -20,7 +19,7 @@
     POST: 'POST',
   };
 
-  var request = function (method, data, url, onLoad, onError) {
+  var sendRequest = function (method, data, url, onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = JSON_RESPONSE_TYPE;
 
@@ -31,9 +30,11 @@
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
+
     xhr.addEventListener('error', function () {
       onError('Произошла ошибка соединения');
     });
+
     xhr.addEventListener('timeout', function () {
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
@@ -45,11 +46,11 @@
   };
 
   var load = function (onLoad, onError) {
-    request(Method.GET, null, Url.LOAD, onLoad, onError);
+    sendRequest(Method.GET, null, Url.LOAD, onLoad, onError);
   };
 
   var save = function (data, onLoad, onError) {
-    request(Method.POST, data, Url.SAVE, onLoad, onError);
+    sendRequest(Method.POST, data, Url.SAVE, onLoad, onError);
   };
 
   window.backend = {

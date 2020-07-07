@@ -24,9 +24,9 @@
     }
   };
 
-  var MainPinYMovementRestriction = {
-    START: 130,
-    END: 630,
+  var MainPinRestriction = {
+    TOP: 130,
+    BOTTOM: 630,
   };
 
   var PriceName = {
@@ -44,7 +44,7 @@
     Placement: Placement,
     MAX_ROOMS: MAX_ROOMS,
     MAX_ROOMS_GUESTS: MAX_ROOMS_GUESTS,
-    MainPinYMovementRestriction: MainPinYMovementRestriction,
+    MainPinRestriction: MainPinRestriction,
     PriceName: PriceName,
     PriceValue: PriceValue,
   };

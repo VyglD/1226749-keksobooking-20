@@ -53,18 +53,21 @@
     }
   };
 
-  var getDefaultValue = function (defaultValues, id, link, property, value) {
-    defaultValues[id] = {
+  var createDefaultValue = function (link, property, value) {
+    return {
       link: link,
       property: property,
       value: value,
     };
   };
 
-  var setDefaultValues = function (defaultValues) {
+  var returnDefaultValues = function (defaultValues) {
     Object.keys(defaultValues).forEach(function (field) {
-      defaultValues[field]['link'][defaultValues[field]['property']]
-                                             = defaultValues[field]['value'];
+      var element = defaultValues[field]['link'];
+      var property = defaultValues[field]['property'];
+      var value = defaultValues[field]['value'];
+
+      element[property] = value;
     });
   };
 
@@ -77,8 +80,8 @@
     isEscEvent: isEscEvent,
     isEnterEvent: isEnterEvent,
     isLeftMouseKeyEvent: isLeftMouseKeyEvent,
-    getDefaultValue: getDefaultValue,
-    setDefaultValues: setDefaultValues,
+    createDefaultValue: createDefaultValue,
+    returnDefaultValues: returnDefaultValues,
   };
 
 })();

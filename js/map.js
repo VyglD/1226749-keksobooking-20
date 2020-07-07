@@ -24,81 +24,9 @@
   var defaultPins = [];
   var defaultValues = {};
 
-  var getDefaultMapValues = function () {
-
-    UTIL.getDefaultValue(
-        defaultValues,
-        'mainPin',
-        mainPin,
-        'style',
-        'left: ' + mainPin.offsetLeft + 'px; top: ' + mainPin.offsetTop + 'px;'
-    );
-
-    filters.querySelectorAll('input, select')
-    .forEach(function (node) {
-      if (node.type === 'checkbox') {
-        UTIL.getDefaultValue(defaultValues, node.id, node, 'checked', node.checked);
-      } else {
-        UTIL.getDefaultValue(defaultValues, node.id, node, 'value', node.value);
-      }
-    });
-  };
-
-  var setVisibilityPins = function (isVisible) {
-    var pinNodes = pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)');
-    pinNodes.forEach(function (pin) {
-      if (isVisible) {
-        UTIL.showElement(pin);
-      } else {
-        UTIL.hideElement(pin);
-      }
-    });
-  };
-
-  var onCloseButtonCardClick = function () {
-    var oldAdvert = map.querySelector('.map__card.popup');
-    if (oldAdvert) {
-      UTIL.removeClassFromElement(
-          map.querySelector('.map__pin--active'),
-          'map__pin--active'
-      );
-      oldAdvert.remove();
-    }
-    document.removeEventListener('keydown', onCardEscPress);
-  };
-
-  var onCardEscPress = function (evt) {
-    UTIL.isEscEvent(evt, onCloseButtonCardClick);
-  };
-
-  var onPinClick = function (evt) {
-    var currentPin = evt.target.closest('.map__pin:not(.map__pin--main)');
-    if (currentPin) {
-      var currentAdvert = map.querySelector('.map__card.popup');
-      var newAdvert = CARD.renderAdvert(defaultPins.find(function (pin) {
-        if (pin.link === currentPin) {
-          return true;
-        }
-        return false;
-      }).advert);
-
-      if (!(currentAdvert
-          && currentAdvert.innerHTML === newAdvert.firstElementChild.innerHTML)) {
-        onCloseButtonCardClick();
-
-        UTIL.addClassToElement(currentPin, 'map__pin--active');
-
-        map.insertBefore(
-            newAdvert,
-            filtersContainer
-        );
-
-        var closeButtonCard = map.querySelector('.popup__close');
-        closeButtonCard.addEventListener('click', onCloseButtonCardClick);
-        document.addEventListener('keydown', onCardEscPress);
-      }
-    }
-  };
+  // Функции заглушки, заменяются при вызове init
+  var getPageStatus = function () {};
+  var setPageStatus = function () {};
 
   var checkFilterField = function (it, select) {
     var advertValue = it.advert.offer[select.name];
@@ -137,15 +65,7 @@
     return true;
   };
 
-  var getSimilarAdverts = function () {
-
-    var checkedFeatures = features
-                          .filter(function (it) {
-                            return it.checked;
-                          })
-                          .map(function (it) {
-                            return it.id.split('-')[1];
-                          });
+  var getSimilarAdvertsForSelectedFilterFields = function () {
 
     var checkedSelects = filtersFields
                         .filter(function (it) {
@@ -159,34 +79,53 @@
                         });
 
     return defaultPins.filter(function (it) {
-      var suitable = true;
 
       for (var i = 0; i < checkedSelects.length; i++) {
-        var suitableValue = true;
+        var suitable = true;
 
         if (checkedSelects[i].name === NAME_PRICE_FIELD) {
-          suitableValue = checkFilterPriceField(it, checkedSelects[i]);
+          suitable = checkFilterPriceField(it, checkedSelects[i]);
         } else {
-          suitableValue = checkFilterField(it, checkedSelects[i]);
+          suitable = checkFilterField(it, checkedSelects[i]);
         }
 
-        if (!suitableValue) {
-          suitable = false;
-          break;
-        }
-      }
-
-      if (suitable) {
-        for (var j = 0; j < checkedFeatures.length; j++) {
-          if (it.advert.offer.features.indexOf(checkedFeatures[j]) === -1) {
-            suitable = false;
-            break;
-          }
+        if (!suitable) {
+          return false;
         }
       }
 
-      return suitable;
+      return true;
     });
+  };
+
+  var getSimilarAdvertsForSelectedFeatures = function (adverts) {
+    var checkedFeatures = features
+                          .filter(function (it) {
+                            return it.checked;
+                          })
+                          .map(function (it) {
+                            return it.id.split('-')[1];
+                          });
+
+    return adverts.filter(function (it) {
+      for (var i = 0; i < checkedFeatures.length; i++) {
+        if (!(it.advert.offer.features.includes(checkedFeatures[i]))) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  };
+
+  var getSimilarAdverts = function () {
+    var adverts = getSimilarAdvertsForSelectedFilterFields();
+
+    if (adverts) {
+      return getSimilarAdvertsForSelectedFeatures(adverts);
+    }
+
+    return [];
   };
 
   var onFilterInput = function () {
@@ -198,8 +137,100 @@
     DEBOUNCE.debounce(showPins.bind(null, pins));
   };
 
+  var setMapAdvertsEnabled = function (enabled) {
+    if (enabled && defaultPins.length > 0) {
+      if (enabled) {
+        UTIL.setEnableForm(filters, true);
+        filters.addEventListener('input', onFilterInput);
+
+        showPins(defaultPins);
+      }
+    } else {
+      UTIL.setEnableForm(filters, false);
+      filters.removeEventListener('input', onFilterInput);
+    }
+
+    setVisibilityPins(enabled);
+  };
+
+  var onCardEscPress = function (evt) {
+    UTIL.isEscEvent(evt, onCloseButtonCardClick);
+  };
+
+  var onCloseButtonCardClick = function () {
+    var oldAdvert = map.querySelector('.map__card.popup');
+    if (oldAdvert) {
+      UTIL.removeClassFromElement(
+          map.querySelector('.map__pin--active'),
+          'map__pin--active'
+      );
+      oldAdvert.remove();
+    }
+    document.removeEventListener('keydown', onCardEscPress);
+  };
+
+  var onPinClick = function (evt) {
+    var currentPin = evt.target.closest('.map__pin:not(.map__pin--main)');
+
+    if (currentPin) {
+      var currentAdvert = map.querySelector('.map__card.popup');
+      var newAdvert = CARD.renderAdvert(defaultPins.find(function (pin) {
+        if (pin.link === currentPin) {
+          return true;
+        }
+        return false;
+      }).advert);
+
+      if (!(currentAdvert && currentAdvert.innerHTML === newAdvert.innerHTML)) {
+        onCloseButtonCardClick();
+
+        UTIL.addClassToElement(currentPin, 'map__pin--active');
+
+        map.insertBefore(
+            newAdvert,
+            filtersContainer
+        );
+
+        var closeButtonCard = map.querySelector('.popup__close');
+        closeButtonCard.addEventListener('click', onCloseButtonCardClick);
+        document.addEventListener('keydown', onCardEscPress);
+      }
+    }
+  };
+
+  var setMapEnable = function (enabled) {
+    if (enabled) {
+      UTIL.removeClassFromElement(map, 'map--faded');
+      map.addEventListener('click', onPinClick);
+    } else {
+      UTIL.addClassToElement(map, 'map--faded');
+      map.removeEventListener('click', onPinClick);
+
+      onCloseButtonCardClick();
+
+      UTIL.returnDefaultValues(defaultValues);
+    }
+
+    setMapAdvertsEnabled(enabled);
+
+    MAIN_PIN.setLocationMainPin(enabled);
+  };
+
+  var setVisibilityPins = function (isVisible) {
+    var pinNodes = pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+    pinNodes.forEach(function (pin) {
+      if (isVisible) {
+        UTIL.showElement(pin);
+      } else {
+        UTIL.hideElement(pin);
+      }
+    });
+  };
+
   var removeOldPins = function () {
     var pinNodes = pinsLocation.querySelectorAll('.map__pin:not(.map__pin--main)');
+
     pinNodes.forEach(function (pin) {
       pin.remove();
     });
@@ -220,52 +251,56 @@
     );
   };
 
-  var init = function (getStatus, setStatus) {
+  var onAdvertsLoad = function (uploadedAdverts) {
+    defaultPins = PIN.getPins(uploadedAdverts);
 
-    var onAdvertsLoad = function (uploadedAdverts) {
-      defaultPins = PIN.getPins(uploadedAdverts);
+    if (defaultPins.length > 0) {
       showPins(defaultPins);
 
-      setVisibilityPins(false);
-      if (getStatus()) {
+      // Проверка на случай, если загрузка объявлений с сервера
+      // произойдёт после перевода страницы в активный режим
+      if (getPageStatus()) {
         UTIL.setEnableForm(filters, true);
-      }
-    };
-
-    var setMapEnable = function (enabled) {
-      if (enabled) {
-        UTIL.removeClassFromElement(map, 'map--faded');
-        map.addEventListener('click', onPinClick);
       } else {
-        UTIL.addClassToElement(map, 'map--faded');
-        map.removeEventListener('click', onPinClick);
-        onCloseButtonCardClick();
-
-        UTIL.setDefaultValues(defaultValues);
+        setVisibilityPins(false);
       }
+    }
+  };
 
-      if (defaultPins.length > 0 && enabled) {
-        UTIL.setEnableForm(filters, true);
-        showPins(defaultPins);
-        filters.addEventListener('input', onFilterInput);
+  var recordFiltersDefaultValues = function () {
+    filters.querySelectorAll('input, select')
+    .forEach(function (node) {
+      if (node.type === 'checkbox') {
+        defaultValues[node.id] = UTIL.createDefaultValue(node, 'checked', node.checked);
       } else {
-        UTIL.setEnableForm(filters, false);
-        filters.removeEventListener('input', onFilterInput);
+        defaultValues[node.id] = UTIL.createDefaultValue(node, 'value', node.value);
       }
+    });
+  };
 
-      setVisibilityPins(enabled);
-      MAIN_PIN.setLocationMainPin(enabled);
-    };
+  var recordMainPinDefaultValue = function () {
+    defaultValues['mainPin'] = UTIL.createDefaultValue(
+        mainPin,
+        'style',
+        'left: ' + mainPin.offsetLeft + 'px; top: ' + mainPin.offsetTop + 'px;'
+    );
+  };
 
-    var onMainPinAction = function () {
-      var enableMap = getStatus();
-      if (getStatus() === false) {
-        enableMap = true;
-        setStatus(enableMap);
-      }
+  var recordDefaultMapValues = function () {
+    recordMainPinDefaultValue();
+    recordFiltersDefaultValues();
+  };
 
-      MAIN_PIN.setLocationMainPin(enableMap);
-    };
+  var onMainPinAction = function () {
+    if (!getPageStatus()) {
+      setPageStatus(true);
+    }
+  };
+
+  var init = function (getStatus, setStatus) {
+
+    getPageStatus = getStatus;
+    setPageStatus = setStatus;
 
     mainPin.addEventListener('mousedown', function (evt) {
       evt.preventDefault();
@@ -279,12 +314,12 @@
       UTIL.isEnterEvent(evt, onMainPinAction);
     });
 
-    MAIN_PIN.setLocationMainPin(getStatus());
+    MAIN_PIN.setLocationMainPin(false);
 
-    getDefaultMapValues();
+    recordDefaultMapValues();
 
-    window.map.setMapEnable = setMapEnable;
     window.map.onAdvertsLoad = onAdvertsLoad;
+    window.map.setMapEnable = setMapEnable;
   };
 
   window.map = {

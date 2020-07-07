@@ -15,7 +15,7 @@
       popup.remove();
 
       document.removeEventListener('click', onPopupCloseClick);
-      document.removeEventListener('keydown', onPopupEscCPress);
+      document.removeEventListener('keydown', onPopupEscPress);
     };
 
     var onPopupCloseClick = function (evt) {
@@ -25,12 +25,12 @@
       }
     };
 
-    var onPopupEscCPress = function (evt) {
+    var onPopupEscPress = function (evt) {
       UTIL.isEscEvent(evt, closeMessage);
     };
 
     document.addEventListener('click', onPopupCloseClick);
-    document.addEventListener('keydown', onPopupEscCPress);
+    document.addEventListener('keydown', onPopupEscPress);
 
     document.querySelector('main').appendChild(popup);
   };

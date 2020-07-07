@@ -17,22 +17,20 @@
     return parseInt(value, 10);
   };
 
-  var calculateCoords = function (x, y, enabled) {
-    var newX = x + MAIN_PIN_WIDTH / 2;
-    var newY = y + MAIN_PIN_HEIGHT / 2;
+  var calculateCoordinates = function (x, y, enabled) {
     return enabled
       ? {
-        x: newX,
-        y: (newY + (MAIN_PIN_HEIGHT / 2) + MAIN_PIN_POINTER_HEIGHT),
+        x: x + MAIN_PIN_WIDTH / 2,
+        y: y + MAIN_PIN_HEIGHT + MAIN_PIN_POINTER_HEIGHT,
       }
       : {
-        x: newX,
-        y: newY,
+        x: x + MAIN_PIN_WIDTH / 2,
+        y: y + MAIN_PIN_HEIGHT / 2,
       };
   };
 
   var getLocation = function (enabledMap) {
-    return calculateCoords(
+    return calculateCoordinates(
         getCoordinate(mainPin.style.left),
         getCoordinate(mainPin.style.top),
         enabledMap
@@ -40,8 +38,8 @@
   };
 
   var setLocationMainPin = function (enabledMap) {
-    var coords = getLocation(enabledMap);
-    mainPinLocationField.value = coords.x + ', ' + coords.y;
+    var coordinates = getLocation(enabledMap);
+    mainPinLocationField.value = coordinates.x + ', ' + coordinates.y;
   };
 
   var onMainPinMove = function (evt) {
@@ -60,13 +58,12 @@
 
       var newX = mainPin.offsetLeft + offset.x;
       var newY = mainPin.offsetTop + offset.y;
-      var coords = calculateCoords(newX, newY, true);
+      var coordinates = calculateCoordinates(newX, newY, true);
 
-
-      if (coords.y >= DATA.MainPinYMovementRestriction.START
-          && coords.y <= DATA.MainPinYMovementRestriction.END
-          && coords.x >= map.clientLeft
-          && coords.x <= map.offsetWidth) {
+      if (coordinates.y >= DATA.MainPinRestriction.TOP
+          && coordinates.y <= DATA.MainPinRestriction.BOTTOM
+          && coordinates.x >= map.clientLeft
+          && coordinates.x <= map.offsetWidth) {
 
         startCoords = {
           x: moveEvt.clientX,
@@ -75,6 +72,7 @@
 
         mainPin.style.left = newX + 'px';
         mainPin.style.top = newY + 'px';
+
         setLocationMainPin(true);
       }
     };
@@ -84,6 +82,7 @@
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
+
       setLocationMainPin(true);
     };
 
