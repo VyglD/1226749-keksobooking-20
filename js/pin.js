@@ -20,12 +20,18 @@
     return newPin;
   };
 
+  // проверка наличия advert.offer добавлена по ТЗ: 5.2
   var getPins = function (adverts) {
     return adverts.map(function (advert) {
-      return {
-        link: createPinElement(advert).firstElementChild,
-        advert: advert,
-      };
+      return advert.offer
+        ? {
+          link: createPinElement(advert).firstElementChild,
+          advert: advert,
+        }
+        : null;
+    })
+    .filter(function (it) {
+      return it;
     });
   };
 
