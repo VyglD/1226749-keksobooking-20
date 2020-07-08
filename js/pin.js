@@ -22,17 +22,18 @@
 
   // проверка наличия advert.offer добавлена по ТЗ: 5.2
   var getPins = function (adverts) {
-    return adverts.map(function (advert) {
-      return advert.offer
-        ? {
-          link: createPinElement(advert).firstElementChild,
-          advert: advert,
-        }
-        : null;
-    })
-    .filter(function (it) {
-      return it;
-    });
+    var pins = [];
+
+    for (var i = 0; i < adverts.length; i++) {
+      if (adverts[i].offer) {
+        pins.push({
+          link: createPinElement(adverts[i]).firstElementChild,
+          advert: adverts[i],
+        });
+      }
+    }
+
+    return pins;
   };
 
   window.pin = {

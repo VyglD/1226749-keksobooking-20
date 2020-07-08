@@ -8,91 +8,87 @@
 
   var templateCard = document.querySelector('#card').content;
 
-  var setTitle = function (advertInfo, newAdvert) {
-    var title = newAdvert.querySelector('.popup__title');
+  var setTitle = function (advertTitle, newAdvert) {
+    var titleNode = newAdvert.querySelector('.popup__title');
 
-    if (advertInfo.offer.title) {
-      title.textContent = advertInfo.offer.title;
+    if (advertTitle) {
+      titleNode.textContent = advertTitle;
     } else {
-      UTIL.hideElement(title);
+      UTIL.hideElement(titleNode);
     }
   };
 
-  var setAvatar = function (advertInfo, newAdvert) {
-    var avatar = newAdvert.querySelector('.popup__avatar');
+  var setAvatar = function (advertAvatar, newAdvert) {
+    var avatarNode = newAdvert.querySelector('.popup__avatar');
 
-    if (advertInfo.author.avatar) {
-      avatar.src = advertInfo.author.avatar;
+    if (advertAvatar) {
+      avatarNode.src = advertAvatar;
     } else {
-      UTIL.hideElement(avatar);
+      UTIL.hideElement(avatarNode);
     }
   };
 
-  var setAddress = function (advertInfo, newAdvert) {
+  var setAddress = function (advertAddress, newAdvert) {
     var address = newAdvert.querySelector('.popup__text--address');
 
-    if (advertInfo.offer.address) {
-      address.textContent = advertInfo.offer.address;
+    if (advertAddress) {
+      address.textContent = advertAddress;
     } else {
       UTIL.hideElement(address);
     }
   };
 
-  var setPrice = function (advertInfo, newAdvert) {
+  var setPrice = function (advertPrice, newAdvert) {
     var price = newAdvert.querySelector('.popup__text--price');
 
-    if (advertInfo.offer.price) {
-      price.textContent = advertInfo.offer.price + '₽/ночь';
+    if (advertPrice) {
+      price.textContent = advertPrice + '₽/ночь';
     } else {
       UTIL.hideElement();
     }
   };
 
-  var setHouseType = function (advertInfo, newAdvert) {
+  var setHouseType = function (advertHouseType, newAdvert) {
     var houseType = newAdvert.querySelector('.popup__type');
 
-    if (advertInfo.offer.type) {
-      houseType.textContent = DATA.Placement[advertInfo.offer.type.toUpperCase()].name;
+    if (advertHouseType) {
+      houseType.textContent = DATA.Placement[advertHouseType.toUpperCase()].name;
     } else {
       UTIL.hideElement(houseType);
     }
   };
 
-  // rooms и guests могут быть нолями => проверка на undefined
-  var setCapacity = function (advertInfo, newAdvert) {
+  var setCapacity = function (advertRooms, advertGuests, newAdvert) {
     var capacity = newAdvert.querySelector('.popup__text--capacity');
 
-    if ((typeof advertInfo.offer.rooms !== 'undefined')
-          && (typeof advertInfo.offer.guests !== 'undefined')) {
-
-      capacity.textContent = advertInfo.offer.rooms + ' комнаты для ' +
-                              advertInfo.offer.guests + ' гостей';
+    if ((typeof advertRooms !== 'undefined')
+          && (typeof advertGuests !== 'undefined')) {
+      capacity.textContent = advertRooms + ' комнаты для ' + advertGuests + ' гостей';
     } else {
       UTIL.hideElement(capacity);
     }
   };
 
-  var setTime = function (advertInfo, newAdvert) {
+  var setTime = function (advertCheckIn, advertCheckOut, newAdvert) {
     var time = newAdvert.querySelector('.popup__text--time');
 
-    if (advertInfo.offer.checkin && advertInfo.offer.checkout) {
-      time.textContent = 'Заезд после ' + advertInfo.offer.checkin +
-                            ', выезд до ' + advertInfo.offer.checkout;
+    if (advertCheckIn && advertCheckOut) {
+      time.textContent = 'Заезд после ' + advertCheckIn + ', выезд до ' + advertCheckOut;
     } else {
       UTIL.hideElement(time);
     }
   };
 
-  var setFeatures = function (advertInfo, newAdvert) {
+  var setFeatures = function (advertFeatures, newAdvert) {
     var featuresContainer = newAdvert.querySelector('.popup__features');
 
-    if (advertInfo.offer.features) {
+    if (advertFeatures) {
       featuresContainer.querySelectorAll('li').forEach(function (node) {
         for (var i = 0; i < node.classList.length; i++) {
           var match = node.classList[i].match(FEATURE_CLASS_REGEX);
 
           if (match) {
-            if (!advertInfo.offer.features.includes(match[1])) {
+            if (!advertFeatures.includes(match[1])) {
               node.classList.add('hidden');
             }
             break;
@@ -104,23 +100,23 @@
     }
   };
 
-  var setDescription = function (advertInfo, newAdvert) {
+  var setDescription = function (advertDescription, newAdvert) {
     var description = newAdvert.querySelector('.popup__description');
 
-    if (advertInfo.offer.description) {
-      description.textContent = advertInfo.offer.description;
+    if (advertDescription) {
+      description.textContent = advertDescription;
     } else {
       UTIL.hideElement(description);
     }
   };
 
-  var setPhoto = function (advertInfo, newAdvert) {
+  var setPhoto = function (advertPhotos, newAdvert) {
     var photoContainer = newAdvert.querySelector('.popup__photos');
     var photo = photoContainer.querySelector('img').cloneNode(true);
 
-    if (advertInfo.offer.photos) {
+    if (advertPhotos) {
       photoContainer.innerHTML = '';
-      advertInfo.offer.photos.forEach(function (elem) {
+      advertPhotos.forEach(function (elem) {
         var img = photo.cloneNode(true);
         img.src = elem;
         photoContainer.appendChild(img);
@@ -130,19 +126,19 @@
     }
   };
 
-  var renderAdvert = function (advertInfo) {
+  var renderAdvert = function (advertCard) {
     var newAdvert = templateCard.cloneNode(true);
 
-    setTitle(advertInfo, newAdvert);
-    setAvatar(advertInfo, newAdvert);
-    setAddress(advertInfo, newAdvert);
-    setPrice(advertInfo, newAdvert);
-    setHouseType(advertInfo, newAdvert);
-    setCapacity(advertInfo, newAdvert);
-    setTime(advertInfo, newAdvert);
-    setFeatures(advertInfo, newAdvert);
-    setDescription(advertInfo, newAdvert);
-    setPhoto(advertInfo, newAdvert);
+    setTitle(advertCard.offer.title, newAdvert);
+    setAvatar(advertCard.author.avatar, newAdvert);
+    setAddress(advertCard.offer.address, newAdvert);
+    setPrice(advertCard.offer.price, newAdvert);
+    setHouseType(advertCard.offer.type, newAdvert);
+    setCapacity(advertCard.offer.rooms, advertCard.offer.guests, newAdvert);
+    setTime(advertCard.offer.checkin, advertCard.offer.checkout, newAdvert);
+    setFeatures(advertCard.offer.features, newAdvert);
+    setDescription(advertCard.offer.description, newAdvert);
+    setPhoto(advertCard.offer.photos, newAdvert);
 
     return newAdvert.firstElementChild;
   };

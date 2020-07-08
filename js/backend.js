@@ -19,7 +19,7 @@
     POST: 'POST',
   };
 
-  var sendRequest = function (method, data, url, onLoad, onError) {
+  var createRequest = function (method, url, onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = JSON_RESPONSE_TYPE;
 
@@ -42,15 +42,17 @@
     xhr.timeout = TIMEOUT_IN_MS;
 
     xhr.open(method, url);
-    xhr.send(data);
+    return xhr;
   };
 
   var load = function (onLoad, onError) {
-    sendRequest(Method.GET, null, Url.LOAD, onLoad, onError);
+    var xhr = createRequest(Method.GET, Url.LOAD, onLoad, onError);
+    xhr.send();
   };
 
   var save = function (data, onLoad, onError) {
-    sendRequest(Method.POST, data, Url.SAVE, onLoad, onError);
+    var xhr = createRequest(Method.POST, Url.SAVE, onLoad, onError);
+    xhr.send(data);
   };
 
   window.backend = {
