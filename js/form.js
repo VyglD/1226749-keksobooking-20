@@ -85,8 +85,8 @@
     } else {
       var newImg = document.createElement('img');
       newImg.src = result;
-      newImg.width = '70';
-      newImg.height = '70';
+      newImg.width = 70;
+      newImg.height = 70;
       newImg.alt = 'Фотография жилья';
       fileInput.view.appendChild(newImg);
     }
@@ -119,18 +119,14 @@
     return false;
   };
 
-
   var getFileInput = function (evt) {
-    return Object.keys(imageInput).map(function (it) {
-      return imageInput[it];
-    })
-    .find(function (it) {
-      if (evt.target === it.link) {
-        return true;
-      }
-
-      return false;
-    });
+    return Object.keys(imageInput)
+      .map(function (it) {
+        return imageInput[it];
+      })
+      .find(function (it) {
+        return evt.target === it.link;
+      });
   };
 
   var correctTimeFields = function (evt) {

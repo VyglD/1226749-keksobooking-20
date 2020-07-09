@@ -36,11 +36,7 @@
       filterValue = parseInt(filterValue, 10);
     }
 
-    if (advertValue !== filterValue) {
-      return false;
-    }
-
-    return true;
+    return advertValue === filterValue;
   };
 
   var checkFilterPriceField = function (it, select) {
@@ -68,15 +64,15 @@
   var getSimilarAdvertsForSelectedFilterFields = function () {
 
     var checkedSelects = filtersFields
-                        .filter(function (it) {
-                          return it.value !== NO_FILTER;
-                        })
-                        .map(function (it) {
-                          return {
-                            name: it.id.split('-')[1],
-                            value: it.value,
-                          };
-                        });
+      .filter(function (it) {
+        return it.value !== NO_FILTER;
+      })
+      .map(function (it) {
+        return {
+          name: it.id.split('-')[1],
+          value: it.value,
+        };
+      });
 
     return defaultPins.filter(function (it) {
 
@@ -100,12 +96,12 @@
 
   var getSimilarAdvertsForSelectedFeatures = function (adverts) {
     var checkedFeatures = features
-                          .filter(function (it) {
-                            return it.checked;
-                          })
-                          .map(function (it) {
-                            return it.id.split('-')[1];
-                          });
+      .filter(function (it) {
+        return it.checked;
+      })
+      .map(function (it) {
+        return it.id.split('-')[1];
+      });
 
     return adverts.filter(function (it) {
       for (var i = 0; i < checkedFeatures.length; i++) {
@@ -175,10 +171,7 @@
     if (currentPin) {
       var currentAdvert = map.querySelector('.map__card.popup');
       var newAdvert = CARD.renderAdvert(defaultPins.find(function (pin) {
-        if (pin.link === currentPin) {
-          return true;
-        }
-        return false;
+        return pin.link === currentPin;
       }).advert);
 
       if (!(currentAdvert && currentAdvert.innerHTML === newAdvert.innerHTML)) {
@@ -186,10 +179,7 @@
 
         UTIL.addClassToElement(currentPin, 'map__pin--active');
 
-        map.insertBefore(
-            newAdvert,
-            filtersContainer
-        );
+        map.insertBefore(newAdvert, filtersContainer);
 
         var closeButtonCard = map.querySelector('.popup__close');
         closeButtonCard.addEventListener('click', onCloseButtonCardClick);

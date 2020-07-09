@@ -65,9 +65,8 @@
     Object.keys(defaultValues).forEach(function (field) {
       var element = defaultValues[field]['link'];
       var property = defaultValues[field]['property'];
-      var value = defaultValues[field]['value'];
 
-      element[property] = value;
+      element[property] = defaultValues[field]['value'];
     });
   };
 
